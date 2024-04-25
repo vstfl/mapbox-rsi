@@ -15,14 +15,19 @@
     <div class ="container">
         <div id="header">
             <div class="left-side">
-                <a hrefe = "./index.html" class="logo">
+                <a href = "./index.html" class="logo">
                     <img class="header-logo" src="./assets/lorwis.png" style = "height:100%; width: auto; align-items: center;">
                 </a>
             </div>
             <div class="right-side">
-                <a class="nav" href="#">Home</a>
-                <a class="nav" href="#">Geostatistical Interpolation (RSI)</a>
-                <a class="nav" href="#">Spatial Mapping (Demo)</a>
+                <a class="nav" href="./index.html">Home</a>
+                <div class="dropdown nav">
+                    <p>Tools</p>
+                    <div class="dropdown-content">
+                        <a href="#">Geostatistical Interpolation (RSI)</a>
+                        <a href="#">Spatial Mapping (Demo)</a>
+                    </div>
+                </div>
                 <a class="nav" href="https://sites.google.com/ualberta.ca/drtaejkwon/home?authuser=0" target="_blank" rel="noopener noreferrer">About</a>
                     <img class="header-logo uofa" src="./assets/uofa.png" style = "height:120%; width: auto">
                 </a>
@@ -35,12 +40,12 @@
             <script>
                 mapboxgl.accessToken = 'pk.eyJ1IjoidXJiaXp0b24iLCJhIjoiY2xsZTZvaXd0MGc4MjNzbmdseWNjM213eiJ9.z1YeFXYSbaMe93SMT6muVg';
                 const map = new mapboxgl.Map({
-                    container: 'map', // container ID
+                    container: 'map', 
                     style: 'mapbox://styles/urbizton/clve9aeu900c501rd7qcn14q6',
-                    center: [-93.53, 41.99], // starting position [lng, lat]
-                    zoom: 6.5, // starting zoom
+                    center: [-93.53, 41.99],
+                    zoom: 6, 
                     maxZoom: 18,
-                    minZoom: 5,
+                    <!-- minZoom: 5, -->
 
                 });
 
