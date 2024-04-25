@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real-Time RSC Monitoring</title>
+    <link rel="icon" href="./assets/engg.png">
+
+    <!-- Manual Stylesheets -->
     <link href="./styles.css" rel="stylesheet">
     
+    <!-- Mapbox Stylesheets -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
-    
 </head>
 
 <body>
@@ -29,15 +32,17 @@
                     </div>
                 </div>
                 <a class="nav nav-text" href="https://sites.google.com/ualberta.ca/drtaejkwon/home?authuser=0" target="_blank" rel="noopener noreferrer">About</a>
-                    <img class="header-logo uofa" src="./assets/uofa.png" style = "height:120%; width: auto">
-                </a>
+                <img class="header-logo uofa nav" src="./assets/uofa.png" style = "height:120%; width: auto">
             </div>
         </div>
     
-        <section id="console">
-            <h1>Console</h1>
-            <div><strong>ID:</strong>&nbsp;<span id="airid"></span></div>
-            <div><strong>Label:</strong>&nbsp;<span id="maplabel"></span></div>            
+        <section class="console-container">
+            <div class="console resizable">
+                <h1>Console</h1>
+                <div><strong>ID:</strong>&nbsp;<span id="airid"></span></div>
+                <div><strong>Label:</strong>&nbsp;<span id="maplabel"></span></div>
+                <script src="./js/webInteractions.js"></script>            
+            </div>
         </section>
     </div> 
 
