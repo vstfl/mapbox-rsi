@@ -42,6 +42,8 @@ const labelDisplay = document.getElementById('maplabel');
 
 let pointID = null;
 let uniqueID = null;
+let clickedPoint = false;
+let clickedPointValues = [];
 
 map.on('mouseenter', 'airfacilities-layer', (event) => {
     map.getCanvas().style.cursor = 'pointer'
@@ -66,17 +68,55 @@ map.on('mouseenter', 'airfacilities-layer', (event) => {
     
 })
 
+map.on('click', 'airfacilities-layer', (event) => {
+    const features = map.queryRenderedFeatures(event.point, { layers: ['airfacilities-layer']});
+    let coordinate = features[0].geometry.coordinates
+
+    if (clickedPoint) {
+        map.setFeatureState(
+            { source: 'air-facilities', id: clickedPointValues[0] },
+            { hover: false }
+        )
+    }
+
+    map.flyTo({
+        center: coordinate,
+        pitch: 0,
+        bearing: 0
+    })
+    clickedPoint = true;
+    clickedPointValues = [
+        event.features[0]['id'], 
+        event.features[0].properties.OBJECTID, 
+        event.features[0].properties.MAPLABELNA
+    ];
+    idDisplay.textContent = clickedPointValues[1];
+    labelDisplay.textContent = clickedPointValues[2];
+})
+
 map.on('mouseleave', 'airfacilities-layer', () => {
     map.getCanvas().style.cursor ='default'
 
+    console.log(` ${clickedPointValues} hovered: ${uniqueID}`);
     if (uniqueID !== null) {
         map.setFeatureState(
             { source: 'air-facilities', id: uniqueID },
             { hover: false }
         );
     }
-    idDisplay.textContent = '';
-    labelDisplay.textContent = '';
+
+    console.log(clickedPoint);
+    if (!clickedPoint) {
+        idDisplay.textContent = '';
+        labelDisplay.textContent = '';
+    } else if (clickedPoint) {
+        idDisplay.textContent = clickedPointValues[1];
+        labelDisplay.textContent = clickedPointValues[2];
+        map.setFeatureState(
+            { source: 'air-facilities', id: clickedPointValues[0] },
+            { hover: true }
+        );
+    }
 })
 
 

@@ -26,12 +26,18 @@ body {
     align-items: center;
 }
 
+#header .right-side .nav-text:hover {
+    font-weight: bolder;
+}
+
 
 a.nav, div.nav{
     color:rgb(252, 252, 252);
     text-decoration: none;
-    margin-right: 5vh;
+    padding-right: 2vw;
+    padding-left: 2vw;
     font-weight: 400;
+    width: auto;
 }
 
 .dropdown{
@@ -41,7 +47,7 @@ a.nav, div.nav{
 .dropdown-content{
     display: none;
     position: absolute;
-    background-color: #fafafaf3;
+    background-color: #c9c9c9f3;
     border-radius: 10px;
     min-width: 100;
     color:rgb(252, 252, 252);
@@ -58,11 +64,9 @@ a.nav, div.nav{
     display: block;
     text-align: left;
     text-decoration: none;
-    
-
 }
 
-.dropdown-content a:hover {background-color: #f1f1f1c4;}
+.dropdown-content a:hover {background-color: #ffffff;}
 
 .dropdown:hover .dropdown-content {
     display: block;
