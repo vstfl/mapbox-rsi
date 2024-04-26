@@ -45,6 +45,8 @@ let uniqueID = null;
 let clickedPoint = false;
 let clickedPointValues = [];
 
+// General point interactivity
+// Need to refactor to use mousemove instead (buggy with clusters of points)
 map.on('mouseenter', 'airfacilities-layer', (event) => {
     map.getCanvas().style.cursor = 'pointer'
     const features = map.queryRenderedFeatures(event.point, { layers: ['airfacilities-layer']});
