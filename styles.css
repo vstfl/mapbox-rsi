@@ -13,7 +13,7 @@ body {
     height: 5vh;
     padding: 20px 30px;
     margin: 10px 10px;
-    z-index: 1;
+    z-index: 50;
 }
 
 #header .left-side img {
@@ -59,15 +59,14 @@ a.nav, div.nav{
     display: none;
     position: absolute;
     background-color: #c9c9c9f3;
-    border-radius: 10px;
-    min-width: 100;
+    top: 5vh;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
     color:rgb(252, 252, 252);
     font-weight: 400;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     overflow: hidden;
-    z-index: 2;
-    width: 17vw;
-    transition: 0.3s
+    width: 18vw;
 }
 
 .dropdown-content a {
@@ -80,7 +79,6 @@ a.nav, div.nav{
 
 .dropdown-content a:hover {
     background-color: #ffffff;
-
 }
 
 .dropdown:hover .dropdown-content {
