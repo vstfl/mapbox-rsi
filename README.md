@@ -1,2 +1,2 @@
 # mapbox-rsi
-Re-implementation of DemoRSI using Mapbox 
+Lightweight re-implementation of DemoRSI using Mapbox 
