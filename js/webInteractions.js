@@ -4,7 +4,8 @@ document.getElementById('shift-button').addEventListener('click', function() {
     document.getElementById('shift-button').classList.toggle('shifted');
     var arrowImg = document.getElementById('arrow-img');
     arrowImg.classList.toggle('flipped');
-});
+}); 
+
 
 // Handle range slider value change visual
 const slider = document.getElementById('time-range');

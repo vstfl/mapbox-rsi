@@ -7,7 +7,7 @@ function panToIowa() {
     })
 }
 
-map.on('load', () => {
+map.on('style.load', () => {
     map.addSource('air-facilities', {
         type: 'geojson',
         data: './assets/Air_Facilities.geojson',
@@ -35,6 +35,25 @@ map.on('load', () => {
             'circle-stroke-color': 'white'
         }
     });
+});
+
+// Handle map style change
+document.addEventListener("DOMContentLoaded", function() {
+    const radios = document.querySelectorAll('.map-styles input[type="radio"]');
+    
+    radios.forEach(radio => {
+      radio.addEventListener("click", function() {
+        if (this.checked) {
+          const mapStyle = this.value;
+          setMapStyle(mapStyle);
+        }
+      });
+    });
+  
+    function setMapStyle(style) {
+        map.setStyle('mapbox://styles/urbizton/' + style);
+      console.log("Map style set to:", style);
+    }
 });
 
 const idDisplay = document.getElementById('airid');
@@ -170,3 +189,5 @@ map.on('mousemove', 'airfacilities-layer', (event) => {
         }
     }
 });
+
+

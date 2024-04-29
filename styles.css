@@ -201,7 +201,7 @@ input[type='range'] {
 
 #submit-query {
     color: white;
-    background: #0084ff;
+    background: #2196F3;
     width: 100%;
     border: none;
     border-radius: 7px;
@@ -259,7 +259,7 @@ input[type='range'] {
   input:checked + .slider:before {
     -webkit-transform: translateX(16px);
     -ms-transform: translateX(16px);
-    transform: translateX(16px);
+    transform: translateX(18px);
   }
   
   /* Rounded sliders */
@@ -269,4 +269,49 @@ input[type='range'] {
   
   .slider.round:before {
     border-radius: 50%;
+  }
+
+
+  .map-styles {
+    position: absolute;
+    display: flex;
+    flex-wrap: wrap;
+    border-radius: 0.5rem;
+    background-color: #444444;
+    box-sizing: border-box;
+    box-shadow: 0 0 0px 1px rgba(0, 0, 0, 0.06);
+    padding: 0.25rem;
+    width: 8vw;
+    min-width: 100px;
+    font-size: 11px;
+    z-index: 2;
+    right:50px;
+    bottom: 30px;
+    
+  }
+  
+  .map-styles .radio {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+  
+  .map-styles .radio input {
+    display: none;
+  }
+  
+  .map-styles .radio .name {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.3rem;
+    border: none;
+    padding: .3rem 0;
+    color: rgb(255, 255, 255);
+    transition: all .15s ease-in-out;
+  }
+  
+  .map-styles .radio input:checked + .name {
+    background-color: #575757;
+    font-weight: 600;
   }
