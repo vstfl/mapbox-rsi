@@ -190,3 +190,17 @@ input[type='range'] {
     flex: 1 1 100px;
 }
 
+.submit {
+    justify-content: center;
+    margin-top: 10px;
+    display:flex;
+    width: 100%;
+}
+
+#submit-query {
+    width: 50%;
+    border: none;
+    border-radius: 20px;
+    height: 1.5em;
+}
+

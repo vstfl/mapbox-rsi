@@ -70,6 +70,31 @@ map.on('mouseenter', 'airfacilities-layer', (event) => {
     
 })
 
+map.on('mouseleave', 'airfacilities-layer', () => {
+    map.getCanvas().style.cursor ='default'
+
+    console.log(` ${clickedPointValues} hovered: ${uniqueID}`);
+    if (uniqueID !== null) {
+        map.setFeatureState(
+            { source: 'air-facilities', id: uniqueID },
+            { hover: false }
+        );
+    }
+
+    console.log(clickedPoint);
+    if (!clickedPoint) {
+        idDisplay.textContent = '';
+        labelDisplay.textContent = '';
+    } else if (clickedPoint) {
+        idDisplay.textContent = clickedPointValues[1];
+        labelDisplay.textContent = clickedPointValues[2];
+        map.setFeatureState(
+            { source: 'air-facilities', id: clickedPointValues[0] },
+            { hover: true }
+        );
+    }
+})
+
 map.on('click', 'airfacilities-layer', (event) => {
     const features = map.queryRenderedFeatures(event.point, { layers: ['airfacilities-layer']});
     let coordinate = features[0].geometry.coordinates
@@ -96,79 +121,52 @@ map.on('click', 'airfacilities-layer', (event) => {
     labelDisplay.textContent = clickedPointValues[2];
 })
 
-map.on('mouseleave', 'airfacilities-layer', () => {
-    map.getCanvas().style.cursor ='default'
+// Remove this function if not working properly
+map.on('mousemove', 'airfacilities-layer', (event) => {
+    map.getCanvas().style.cursor = 'pointer';
 
-    console.log(` ${clickedPointValues} hovered: ${uniqueID}`);
-    if (uniqueID !== null) {
-        map.setFeatureState(
-            { source: 'air-facilities', id: uniqueID },
-            { hover: false }
-        );
-    }
+    const features = map.queryRenderedFeatures(event.point, { layers: ['airfacilities-layer'] });
 
-    console.log(clickedPoint);
-    if (!clickedPoint) {
+    // Check if any features are hovered
+    if (features.length > 0) {
+        const hoveredFeature = features[0];
+        const hoveredFeatureId = hoveredFeature.id;
+
+        // If the hovered feature is different from the currently hovered feature
+        if (hoveredFeatureId !== uniqueID) {
+            // Clear feature state for the previously hovered feature
+            if (uniqueID !== null) {
+                map.setFeatureState(
+                    { source: 'air-facilities', id: uniqueID },
+                    { hover: false }
+                );
+            }
+
+            // Update feature state for the newly hovered feature
+            map.setFeatureState(
+                { source: 'air-facilities', id: hoveredFeatureId },
+                { hover: true }
+            );
+
+            // Update uniqueID to the newly hovered feature's id
+            uniqueID = hoveredFeatureId;
+
+            // Update UI with the hovered feature's information
+            idDisplay.textContent = hoveredFeature.properties.OBJECTID;
+            labelDisplay.textContent = hoveredFeature.properties.MAPLABELNA;
+        }
+    } else {
+        // If no features are hovered, reset cursor, clear UI, and clear feature state
+        map.getCanvas().style.cursor = 'default';
         idDisplay.textContent = '';
         labelDisplay.textContent = '';
-    } else if (clickedPoint) {
-        idDisplay.textContent = clickedPointValues[1];
-        labelDisplay.textContent = clickedPointValues[2];
-        map.setFeatureState(
-            { source: 'air-facilities', id: clickedPointValues[0] },
-            { hover: true }
-        );
+
+        if (uniqueID !== null) {
+            map.setFeatureState(
+                { source: 'air-facilities', id: uniqueID },
+                { hover: false }
+            );
+            uniqueID = null;
+        }
     }
-})
-
-
-
-// map.on('mousemove', 'airfacilities-layer', (event) => {
-//     const features = map.queryRenderedFeatures(event.point, { layers: ['airfacilities-layer'] });
-
-//     // console.log('Features:', features); // Debug logging
-
-//     // Change cursor style
-//     map.getCanvas().style.cursor = features.length ? 'pointer' : '';
-
-//     if (!features.length) {
-//         idDisplay.textContent = ''; // Clear the ID display if no feature is under the cursor
-//         // Remove feature state if there's a previous feature
-//         if (pointID) {
-//             map.setFeatureState({
-//                 source: 'air-facilities',
-//                 id: pointID},
-//                 {hover: false
-                
-//                 });
-//             pointID = null; // Reset pointID
-//         }
-//         return;
-//     }
-    
-//     console.log(features)
-//     const objectId = features[0].properties.OBJECTID;
-//     idDisplay.textContent = objectId;
-
-//     // Check if features[0].id is valid
-//     console.log('Feature ID:', objectId); // Debug logging
-
-//     // Remove previous feature state
-//     if (pointID) {
-//         map.setFeatureState({
-//             source: 'air-facilities',
-//             id: 'cheese'},
-//             {hover: false
-
-//         });
-//     }
-
-//     pointID = objectId;
-
-//     Set feature state for the current feature
-//     map.setFeatureState(
-//         { source: 'air-facilities', id: 'cheese' },
-//         { hover: true }
-//     );
-
-// });
+});

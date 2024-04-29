@@ -12,6 +12,7 @@
     <!-- Mapbox Stylesheets -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+
 </head>
 
 <body>
@@ -22,6 +23,7 @@
                     <img class="header-logo" src="./assets/lorwis.png" style = "height:100%; width: auto; align-items: center;">
                 </a>
             </div>
+            
             <div class="right-side">
                 <a class="nav nav-text" href="#" onclick="panToIowa()">Home</a>
                 <div class="dropdown nav">
@@ -38,21 +40,12 @@
     
         <section class="console-container" id="console">
             <button id="shift-button"><img id="arrow-img" class="flipped" src="./assets/arrowt.png" style="width: 25px; height:25px"></button>
-            <script>
-                document.getElementById('shift-button').addEventListener('click', function() {
-                    document.getElementById('console').classList.toggle('shifted');
-                    document.getElementById('shift-button').classList.toggle('shifted');
-                    var arrowImg = document.getElementById('arrow-img');
-                    arrowImg.classList.toggle('flipped'); // Toggle the 'flipped' class
-                    
-                });
-            </script>
 
             <div class="console resizable">
                 <h1 style="margin: 12px 0px">Console</h1>
-                <form class="form-resize">
+                <form class="form-resize" id="query-form">
                     <div class = datetime-div>
-                        <label style="margin-right: 12px">Pick a date:</label>
+                        <label for="query-date" style="margin-right: 12px">Pick a date:</label>
                         <input 
                         type="datetime-local" 
                         name="calendar" 
@@ -61,10 +54,10 @@
                     </div>
 
                     <div class = range-div>
-                        <label style="margin-right: 12px">Pick a window (hrs):</label>
+                        <label for="time-range" style="margin-right: 12px">Pick a window (hrs):</label>
                         <input
                         type="range"
-                        name="time-range"
+                        name="window"
                         id="time-range"
                         list="range"
                         value="0"
@@ -72,24 +65,21 @@
                         max="24"
                         step="1">
                         <span id="slider-value" style="margin-left: 10px">0</span>
-                        <script>
-                            const slider = document.getElementById('time-range');
-                            const sliderValue = document.getElementById('slider-value')
-                            slider.addEventListener('input', function() {
-                                sliderValue.textContent = this.value;
-                            })
-                        </script>
+                        <datalist id="range">
+                            <option value="0.5"></option>
+                            <option value="1">  </option>
+                            <option value="3">  </option>
+                            <option value="6">  </option>
+                            <option value="12"> </option>
+                            <option value="24"> </option>
+                        </datalist>                        
                     </div>
 
+                    <div class="submit">
+                        <button id="submit-query">Submit
+                        </button>
+                    </div>
                 </form>
-                <datalist id="range">
-                    <option value="0.5"></option>
-                    <option value="1"></option>
-                    <option value="3"></option>
-                    <option value="6"></option>
-                    <option value="12"></option>
-                    <option value="24"></option>
-                </datalist>
 
                 <div><strong>ID:</strong>&nbsp;<span id="airid"></span></div>
                 <div><strong>Label:</strong>&nbsp;<span id="maplabel"></span></div>
@@ -110,5 +100,5 @@
 
 <!-- https://511.alberta.ca/region/Edmonton -->
 <!-- Interpolation and Plotting -->
-<!-- INterpolation -> can just do simple snapping to closest station -->
+<!-- INterpolation -> can just do simple snapping to use value from closest station -->
 <!-- Use 511 as a reference -->
