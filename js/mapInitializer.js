@@ -4,7 +4,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoidXJiaXp0b24iLCJhIjoiY2xsZTZvaXd0MGc4MjNzbmdse
                 style: 'mapbox://styles/urbizton/clve9aeu900c501rd7qcn14q6', // Default Dark
 
                 center: [-93.53, 41.99],
-                zoom: 6.4, 
+                zoom: 6.4,
                 maxZoom: 14,
             });
             map.addControl(new mapboxgl.NavigationControl({visualizePitch: true}),'bottom-right');
