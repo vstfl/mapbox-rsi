@@ -15,7 +15,7 @@ slider.addEventListener('input', function() {
 
 //Example query
 // firebase.database().ref('your/path').orderByChild('value').equalTo(currentValue).once('value').then(function(snapshot) {
-// });
+// })
 
 document.getElementById('query-form').addEventListener('submit', function(event) {
     event.preventDefault(); // Prevent form submission
