@@ -192,6 +192,10 @@ input[type='range'] {
     flex: 1 1 100px;
 }
 
+.range-div {
+    margin-bottom: 0.5em;
+}
+
 input[type='range']:hover{
     cursor: pointer;
 }
