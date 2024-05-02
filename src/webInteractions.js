@@ -1,5 +1,7 @@
 
 import { queryImagesByDateRange } from './firebaseHandler.js';
+import { updateMapData } from './mapInteractions.js';
+import * as geojson from 'geojson';
 
 // Handle realtime toggle
 const consoleContainer = document.getElementById('inner-console');
@@ -42,12 +44,8 @@ slider.addEventListener('input', function() {
     console.log(currentRange);
 })
 
-//Example query
-// firebase.database().ref('your/path').orderByChild('value').equalTo(currentValue).once('value').then(function(snapshot) {
-// })
-
 // Handle form submission for querying
-document.getElementById('query-form').addEventListener('submit', function(event) {
+document.getElementById('query-form').addEventListener('submit', async function(event) {
     event.preventDefault(); // Prevent form submission
     
     if (!realtimeState) {
@@ -55,19 +53,14 @@ document.getElementById('query-form').addEventListener('submit', function(event)
         const date = formData.get('calendar');
         const window = formData.get('window');
         
-        // Store form data in variables or pass it to a function for Firebase query
-        // Example:
-        // firebaseQuery(date, window);
         console.log('Date:', date);
         console.log('Window:', window);
         
-        const { startTimestamp, endTimestamp } = calculateDataRange(date, window);
-
-        // queryImagesByDateRange( startTimestamp, endTimestamp )
-        //     .then((images) => {
-        //         console.log(images);
-        //     });
-        console.log('swag')
+        const [startTimestamp, endTimestamp] = calculateDataRange(date, window);
+        const imageQuery = await queryImagesByDateRange( startTimestamp, endTimestamp );
+        const newGeoJSON = convertToGeoJSON(imageQuery);
+        console.log(JSON.stringify(newGeoJSON, null, 2));
+        updateMapData(newGeoJSON);
     }
 });
 
@@ -85,8 +78,37 @@ setInterval(updateRealtimeData, 60000);
 
 function calculateDataRange(date, windowSize) {
     const dateTime = new Date(date);
-    
     const startDate = new Date(dateTime.getTime() - (windowSize * 60000));
     const endDate = new Date(dateTime.getTime() + (windowSize * 60000));
-    return { startDate, endDate };
+    return [startDate, endDate];
+}
+
+function convertToGeoJSON(pointList) {
+    let data = [];
+    for (const point of pointList) {
+        const base = point['data'];
+        const id = point['id'];
+        // Grab and organize all relevant values
+        const lat = base['Position']["latitude"];
+        const lng = base['Position']['longitude'];
+        const classification = {
+            Undefined: base['Undefined'],
+            Bare: base['Bare'],
+            Full: base['Full'],
+            Partly: base['Partly']
+        };
+        const url = base["IMAGE_URL"];
+        const timestamp = base['Date']['seconds']
+
+        data.push({
+            id: id,
+            lat: lat,
+            lng: lng,
+            class: classification,
+            url: url,
+            timestamp: timestamp
+        })
+    }
+
+    return geojson.parse(data, {Point: ['lat', 'lng']})
 }

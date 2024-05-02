@@ -21,17 +21,18 @@ function panToIowa() {
     })
 }
 
+// Initial state of map
 map.on('style.load', () => {
-    map.addSource('air-facilities', {
+    map.addSource('latestSource', {
         type: 'geojson',
         data: './assets/Air_Facilities.geojson',
         generateId: true // Ensure that each feature has a unique ID at the PROPERTY level
     });
 
     map.addLayer({
-        'id': 'airfacilities-layer',
+        'id': 'latestLayer',
         'type': 'circle',
-        'source': 'air-facilities',
+        'source': 'latestSource',
         'paint': {
             'circle-color': [
                 'case',
@@ -50,6 +51,44 @@ map.on('style.load', () => {
         }
     });
 });
+
+// Handle update of map data
+export function updateMapData(newGeoJSON) {
+    if (map.getLayer('latestLayer')) {
+        map.removeLayer('latestLayer');
+    }
+    if (map.getSource('latestSource')) {
+        map.removeSource('latestSource');
+    }
+
+    map.addSource('latestSource', {
+        type: 'geojson',
+        data: newGeoJSON,
+        generateId: true // Ensure that each feature has a unique ID at the PROPERTY level
+    });
+
+    map.addLayer({
+        'id': 'latestLayer',
+        'type': 'circle',
+        'source': 'latestSource',
+        'paint': {
+            'circle-color': [
+                'case',
+                ['boolean', ['feature-state', 'hover'], false],
+                '#FF0000', // Red color when hover state is true
+                '#FFFFFF' // White color when hover state is false
+            ],
+            'circle-radius': [
+                'case',
+                ['boolean', ['feature-state', 'hover'], false],
+                7,
+                3
+            ],
+            'circle-stroke-width': 1,
+            'circle-stroke-color': 'white'
+        }
+    });
+}
 
 // Handle map style change
 document.addEventListener("DOMContentLoaded", function() {
@@ -70,7 +109,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-const idDisplay = document.getElementById('airid');
+const idDisplay = document.getElementById('pointID');
 const labelDisplay = document.getElementById('maplabel');
 
 let pointID = null;
@@ -80,14 +119,14 @@ let clickedPointValues = [];
 
 // General point interactivity
 // Need to refactor to use mousemove instead (buggy with clusters of points)
-map.on('mouseenter', 'airfacilities-layer', (event) => {
+map.on('mouseenter', 'latestLayer', (event) => {
     map.getCanvas().style.cursor = 'pointer'
-    const features = map.queryRenderedFeatures(event.point, { layers: ['airfacilities-layer']});
+    const features = map.queryRenderedFeatures(event.point, { layers: ['latestLayer']});
     // console.log('Features:', features); // For debugging
 
     if (uniqueID !==null) {
         map.setFeatureState(
-            { source: 'air-facilities', id: uniqueID},
+            { source: 'latestSource', id: uniqueID},
             { hover: false }
         );
     }
@@ -95,7 +134,7 @@ map.on('mouseenter', 'airfacilities-layer', (event) => {
     uniqueID = event.features[0]['id'];
 
     map.setFeatureState(
-        { source: 'air-facilities', id: uniqueID },
+        { source: 'latestSource', id: uniqueID },
         { hover: true }
     );
     idDisplay.textContent = pointID;
@@ -103,18 +142,18 @@ map.on('mouseenter', 'airfacilities-layer', (event) => {
     
 })
 
-map.on('mouseleave', 'airfacilities-layer', () => {
+map.on('mouseleave', 'latestLayer', () => {
     map.getCanvas().style.cursor ='default'
 
-    console.log(` ${clickedPointValues} hovered: ${uniqueID}`);
+    // console.log(` ${clickedPointValues} hovered: ${uniqueID}`);
     if (uniqueID !== null) {
         map.setFeatureState(
-            { source: 'air-facilities', id: uniqueID },
+            { source: 'latestSource', id: uniqueID },
             { hover: false }
         );
     }
 
-    console.log(clickedPoint);
+    // console.log(clickedPoint);
     if (!clickedPoint) {
         idDisplay.textContent = '';
         labelDisplay.textContent = '';
@@ -122,19 +161,19 @@ map.on('mouseleave', 'airfacilities-layer', () => {
         idDisplay.textContent = clickedPointValues[1];
         labelDisplay.textContent = clickedPointValues[2];
         map.setFeatureState(
-            { source: 'air-facilities', id: clickedPointValues[0] },
+            { source: 'latestSource', id: clickedPointValues[0] },
             { hover: true }
         );
     }
 })
 
-map.on('click', 'airfacilities-layer', (event) => {
-    const features = map.queryRenderedFeatures(event.point, { layers: ['airfacilities-layer']});
+map.on('click', 'latestLayer', (event) => {
+    const features = map.queryRenderedFeatures(event.point, { layers: ['latestLayer']});
     let coordinate = features[0].geometry.coordinates
 
     if (clickedPoint) {
         map.setFeatureState(
-            { source: 'air-facilities', id: clickedPointValues[0] },
+            { source: 'latestSource', id: clickedPointValues[0] },
             { hover: false }
         )
     }
@@ -155,10 +194,10 @@ map.on('click', 'airfacilities-layer', (event) => {
 })
 
 // Remove this function if not working properly
-map.on('mousemove', 'airfacilities-layer', (event) => {
+map.on('mousemove', 'latestLayer', (event) => {
     map.getCanvas().style.cursor = 'pointer';
 
-    const features = map.queryRenderedFeatures(event.point, { layers: ['airfacilities-layer'] });
+    const features = map.queryRenderedFeatures(event.point, { layers: ['latestLayer'] });
 
     // Check if any features are hovered
     if (features.length > 0) {
@@ -170,14 +209,14 @@ map.on('mousemove', 'airfacilities-layer', (event) => {
             // Clear feature state for the previously hovered feature
             if (uniqueID !== null) {
                 map.setFeatureState(
-                    { source: 'air-facilities', id: uniqueID },
+                    { source: 'latestSource', id: uniqueID },
                     { hover: false }
                 );
             }
 
             // Update feature state for the newly hovered feature
             map.setFeatureState(
-                { source: 'air-facilities', id: hoveredFeatureId },
+                { source: 'latestSource', id: hoveredFeatureId },
                 { hover: true }
             );
 
@@ -196,7 +235,7 @@ map.on('mousemove', 'airfacilities-layer', (event) => {
 
         if (uniqueID !== null) {
             map.setFeatureState(
-                { source: 'air-facilities', id: uniqueID },
+                { source: 'latestSource', id: uniqueID },
                 { hover: false }
             );
             uniqueID = null;
