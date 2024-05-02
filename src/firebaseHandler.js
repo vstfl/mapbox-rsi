@@ -19,7 +19,7 @@ const db = getFirestore();
 
 // Returns a list of JSONs/dicts which represent each point queried from the database
 export async function queryImagesByDateRange(startDate, endDate) {
-    // console.log('From ' + startDate + ' To ' + endDate)
+    // console.log('Querying from ' + startDate + ' To ' + endDate)
 
     const collectionRef = collectionGroup(db, 'Images')
 

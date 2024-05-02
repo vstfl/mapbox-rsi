@@ -59,7 +59,9 @@ document.getElementById('query-form').addEventListener('submit', async function(
         const [startTimestamp, endTimestamp] = calculateDataRange(date, window);
         const imageQuery = await queryImagesByDateRange( startTimestamp, endTimestamp );
         const newGeoJSON = convertToGeoJSON(imageQuery);
-        console.log(JSON.stringify(newGeoJSON, null, 2));
+
+        const geojsonString = JSON.stringify(newGeoJSON, null, 2);
+        console.log(geojsonString);
         updateMapData(newGeoJSON);
     }
 });

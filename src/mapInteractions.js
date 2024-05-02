@@ -21,35 +21,16 @@ function panToIowa() {
     })
 }
 
-// Initial state of map
+let changedState = false;
+let currentGeoJSON;
+// Initial state of map, also ensures points stay the same when style changes
 map.on('style.load', () => {
-    map.addSource('latestSource', {
-        type: 'geojson',
-        data: './assets/Air_Facilities.geojson',
-        generateId: true // Ensure that each feature has a unique ID at the PROPERTY level
-    });
-
-    map.addLayer({
-        'id': 'latestLayer',
-        'type': 'circle',
-        'source': 'latestSource',
-        'paint': {
-            'circle-color': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                '#FF0000', // Red color when hover state is true
-                '#FFFFFF' // White color when hover state is false
-            ],
-            'circle-radius': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                7,
-                3
-            ],
-            'circle-stroke-width': 1,
-            'circle-stroke-color': 'white'
-        }
-    });
+    if (!changedState) {
+        addPointLayer('./assets/Air_Facilities.geojson')
+    }
+    if (changedState) {
+        updateMapData(currentGeoJSON);
+    }
 });
 
 // Handle update of map data
@@ -60,10 +41,16 @@ export function updateMapData(newGeoJSON) {
     if (map.getSource('latestSource')) {
         map.removeSource('latestSource');
     }
+    addPointLayer(newGeoJSON);
+    changedState = true;
+    currentGeoJSON = newGeoJSON;
+}
 
+// Customize visualization/interactivity of geoJSON data here
+function addPointLayer(geojsonSource) {
     map.addSource('latestSource', {
         type: 'geojson',
-        data: newGeoJSON,
+        data: geojsonSource,
         generateId: true // Ensure that each feature has a unique ID at the PROPERTY level
     });
 
@@ -89,6 +76,7 @@ export function updateMapData(newGeoJSON) {
         }
     });
 }
+
 
 // Handle map style change
 document.addEventListener("DOMContentLoaded", function() {
@@ -118,35 +106,11 @@ let clickedPoint = false;
 let clickedPointValues = [];
 
 // General point interactivity
-// Need to refactor to use mousemove instead (buggy with clusters of points)
-map.on('mouseenter', 'latestLayer', (event) => {
-    map.getCanvas().style.cursor = 'pointer'
-    const features = map.queryRenderedFeatures(event.point, { layers: ['latestLayer']});
-    // console.log('Features:', features); // For debugging
-
-    if (uniqueID !==null) {
-        map.setFeatureState(
-            { source: 'latestSource', id: uniqueID},
-            { hover: false }
-        );
-    }
-    pointID = event.features[0].properties.OBJECTID;
-    uniqueID = event.features[0]['id'];
-
-    map.setFeatureState(
-        { source: 'latestSource', id: uniqueID },
-        { hover: true }
-    );
-    idDisplay.textContent = pointID;
-    labelDisplay.textContent = event.features[0].properties.MAPLABELNA;
-    
-})
-
 map.on('mouseleave', 'latestLayer', () => {
     map.getCanvas().style.cursor ='default'
 
     // console.log(` ${clickedPointValues} hovered: ${uniqueID}`);
-    if (uniqueID !== null) {
+    if (uniqueID) {
         map.setFeatureState(
             { source: 'latestSource', id: uniqueID },
             { hover: false }
@@ -207,7 +171,7 @@ map.on('mousemove', 'latestLayer', (event) => {
         // If the hovered feature is different from the currently hovered feature
         if (hoveredFeatureId !== uniqueID) {
             // Clear feature state for the previously hovered feature
-            if (uniqueID !== null) {
+            if (uniqueID) {
                 map.setFeatureState(
                     { source: 'latestSource', id: uniqueID },
                     { hover: false }
