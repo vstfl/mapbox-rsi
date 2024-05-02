@@ -1,3 +1,6 @@
+
+import { queryImagesByDateRange } from './firebaseHandler.js';
+
 // Handle realtime toggle
 const consoleContainer = document.getElementById('inner-console');
 const consoleBreak = document.getElementById('console-break');
@@ -55,9 +58,16 @@ document.getElementById('query-form').addEventListener('submit', function(event)
         // Store form data in variables or pass it to a function for Firebase query
         // Example:
         // firebaseQuery(date, window);
-        
         console.log('Date:', date);
         console.log('Window:', window);
+        
+        const { startTimestamp, endTimestamp } = calculateDataRange(date, window);
+
+        // queryImagesByDateRange( startTimestamp, endTimestamp )
+        //     .then((images) => {
+        //         console.log(images);
+        //     });
+        console.log('swag')
     }
 });
 
@@ -72,3 +82,11 @@ function updateRealtimeData() {
     }
 }
 setInterval(updateRealtimeData, 60000);
+
+function calculateDataRange(date, windowSize) {
+    const dateTime = new Date(date);
+    
+    const startDate = new Date(dateTime.getTime() - (windowSize * 60000));
+    const endDate = new Date(dateTime.getTime() + (windowSize * 60000));
+    return { startDate, endDate };
+}
