@@ -127,20 +127,24 @@ a.nav, div.nav{
     position: relative;
     margin: 5vh 0 5vh -2vw;
     width: 25vw;
-    height: 70vh;
+    height: 73vh;
     background-color: #37373762;
     padding: 10px 30px;
     border-radius: 20px;
     box-shadow: 0px 0px 50px rgba(0, 0, 0, 0.596);
     backdrop-filter: blur(14px) saturate(40%) contrast(80%);
     z-index: 1;
-    resize: both;
+    resize: horizontal;
     overflow: hidden;
-    max-width: 40vw;
-    max-height: 82vh;
-    min-height: 40vh;
-    min-width: 200px;
+    max-width: 90vw;
+    min-width: 250px;
     transition: transform 0.5s ease, opacity 0.5s ease-in;
+}
+
+.console.resizable {
+    display: flex;
+    height: 95%;
+    overflow: hidden;
 }
 
 .console{
@@ -151,6 +155,16 @@ a.nav, div.nav{
     display:flex;
     flex-direction: column;
     width: calc(100% - 3vw - 40px);
+}
+
+.realtime-div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: wrap;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
 }
 
 #query-date {
@@ -165,7 +179,7 @@ a.nav, div.nav{
 }
 
 .datetime-div {
-    display:flex;
+    display:flex !important;
     align-items: center;
     justify-content: space-between;
     width: 100%;
@@ -202,7 +216,7 @@ input[type='range']:hover{
 
 .submit {
     justify-content: right;
-    margin-top: 10px;
+    margin-top: 5px;
     display:flex;
     width: 100%;
 }
@@ -329,3 +343,29 @@ input[type='range']:hover{
     background-color: #575757;
     font-weight: 600;
   }
+
+#console-content {
+    display: flex;
+    flex-wrap: wrap;
+    height: 100%;
+}
+
+#snowplow-img {
+    height: auto;
+    width: 100%;
+    max-width:25vw;
+}
+
+/* .snowplow-div {
+    flex: 1 1 35vw;
+}
+
+.class-div {
+    flex: 1 1 35vw;
+} */
+
+#chart-placeholder {
+    height: auto; 
+    width: 100%; 
+    max-width: 25vw;
+}

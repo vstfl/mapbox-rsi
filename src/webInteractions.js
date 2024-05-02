@@ -25,6 +25,8 @@ realtimeToggle.addEventListener('change', e => {
     console.log(`Realtime: ${realtimeState}`);
 });
 
+//
+
 // Handle console shift toggle button
 document.getElementById('shift-button').addEventListener('click', function() {
     document.getElementById('console').classList.toggle('shifted');

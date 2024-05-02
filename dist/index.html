@@ -42,14 +42,17 @@
             <button id="shift-button"><img id="arrow-img" class="flipped" src="./assets/arrowt.png" style="width: 25px; height:25px"></button>
 
             <div class="console resizable" id="inner-console">
-                <h1 style="margin: 12px 0px">Console</h1>
-
-                <label class="switch" id="realtime-toggle">
-                    <input type="checkbox">
-                    <span class="slider round"></span>
-                </label>
+                <!-- <h1 style="margin: 12px 0px">Console</h1> -->
 
                 <form class="form-resize" id="query-form">
+                    <div class = "realtime-div">
+                        <label for="realtime-toggle" style="margin-right: 12px">Enable Real-Time:</label>
+                        <label class="switch" id="realtime-toggle">
+                            <input type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+
                     <div class = "datetime-div archived-query">
                         <label for="query-date" style="margin-right: 12px">Pick a date:</label>
                         <input 
@@ -61,7 +64,8 @@
                     </div>
             
                     <div class ="range-div">
-                        <label for="time-range" style="margin-right: 12px">Pick a window (hrs):</label>
+                        <label for="time-range" style="margin-right: 12px">
+                            Pick a window (<span id="slider-value">0</span> hrs):</label>
                         <input
                         type="range"
                         name="window"
@@ -71,7 +75,7 @@
                         min="0"
                         max="24"
                         step="1">
-                        <span id="slider-value" style="margin-left: 10px">0</span>
+                        <!-- <span id="slider-value" style="margin-left: 10px">0</span> -->
                         <datalist id="range">
                             <option value="0.5"></option>
                             <option value="1">  </option>
@@ -90,6 +94,15 @@
                 <hr id='console-break' style="width: 100%; margin:1em 0;">
                 <div><strong>ID:</strong>&nbsp;<span id="pointID"></span></div>
                 <div><strong>Label:</strong>&nbsp;<span id="maplabel"></span></div>
+
+                <div id='console-content'>
+                    <div class="snowplow-div">
+                        <img id="snowplow-img" src="./assets/snowplow.jpg">
+                    </div>
+                    <div class="class-div">
+                        <img id="chart-placeholder" src="./assets/snowplow.jpg">
+                    </div>
+                </div>
             </div>
         </section>
     </div> 
