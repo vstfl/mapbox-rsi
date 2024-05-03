@@ -1,6 +1,10 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore, collectionGroup, getDocs, query, where, limit} from 'firebase/firestore';
 
+import firebase from 'firebase/compat/app';
+import * as firebaseui from 'firebaseui'
+import 'firebaseui/dist/firebaseui.css'
+
 const firebaseConfig = {
     apiKey: "AIzaSyC7GBQB3LVoKhtmvMqRn5UjgWWFh4JH-yc",
     authDomain: "demorsi-a1501.firebaseapp.com",
@@ -12,10 +16,44 @@ const firebaseConfig = {
   };
 
 // Init firebase app
-const app = initializeApp(firebaseConfig);
+const app = firebase.initializeApp(firebaseConfig);
 
 // init services
 const db = getFirestore();
+
+// Initialize FirebaseUI Widget
+var uiConfig = {
+    callbacks: {
+      signInSuccessWithAuthResult: function(authResult) {
+        // User successfully signed in.
+        // Return type determines whether we continue the redirect automatically
+        // or whether we leave that to developer to handle.
+        return false;
+      },
+      uiShown: function() {
+        // The widget is rendered.
+        // Hide the loader.
+        document.getElementById('loader').style.display = 'none';
+      }
+    },
+    signInOptions: [
+      // https://firebase.google.com/docs/auth/web/firebaseui
+      {
+        provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+        requireDisplayName: false,
+      }
+    ],
+  };
+var ui = new firebaseui.auth.AuthUI(firebase.auth());
+ui.start('#firebaseui-auth-container', uiConfig);
+console.log('test')
+
+// // Handle sign-in UI visibility
+if (ui.isPendingRedirect()) {
+    ui.start('#firebaseui-auth-container', uiConfig);
+  }
+
+
 
 // Returns a list of JSONs/dicts which represent each point queried from the database
 export async function queryImagesByDateRange(startDate, endDate) {

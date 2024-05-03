@@ -5,16 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real-Time RSC Monitoring</title>
     <link rel="icon" href="./assets/engg.png">
+
+    <!-- Manual Stylesheets -->
+    <link href="./styles.css" rel="stylesheet">
     
     <!-- Mapbox Stylesheets -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
+    <!-- <script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script> -->
     
 
 <script defer src="main.js"></script></head>
 
 <body>
-    <div class="sign-in-container">
-        <div class="grey-out"></div>
+    <div class="testcontainer">
         <div id="firebaseui-auth-container"></div>
         <div id="loader">Loading...</div>
     </div>
@@ -45,11 +48,13 @@
             <button id="shift-button"><img id="arrow-img" class="flipped" src="./assets/arrowt.png" style="width: 25px; height:25px"></button>
 
             <div class="console resizable" id="inner-console">
+                <!-- <h1 style="margin: 12px 0px">Console</h1> -->
+
                 <form class="form-resize" id="query-form">
                     <div class = "realtime-div">
                         <label for="realtime-toggle" style="margin-right: 12px">Enable Real-Time:</label>
                         <label class="switch" id="realtime-toggle">
-                            <input type="checkbox" id="realtime-toggle">
+                            <input type="checkbox">
                             <span class="slider round"></span>
                         </label>
                     </div>
@@ -76,6 +81,7 @@
                         min="0"
                         max="24"
                         step="1">
+                        <!-- <span id="slider-value" style="margin-left: 10px">0</span> -->
                         <datalist id="range">
                             <option value="0.5"></option>
                             <option value="1">  </option>
@@ -127,6 +133,7 @@
         </label>
     </div>
     
+    <script src="./main.js"></script>
 </body>
 </html>
 

@@ -5,6 +5,11 @@ body {
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
 }
 
+#firebaseui-auth-container, .testcontainer {
+    position: absolute;
+    z-index:1000;
+}
+
 #header {
     display: flex;
     justify-content: space-between;

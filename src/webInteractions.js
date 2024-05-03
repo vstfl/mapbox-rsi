@@ -19,7 +19,7 @@ realtimeToggle.addEventListener('change', e => {
     } else {
         realtimeState = false;
         archivedQuery.forEach(query => {
-            query.style.display = "block";
+            query.style.display = "flex";
         });
     }
     console.log(`Realtime: ${realtimeState}`);
