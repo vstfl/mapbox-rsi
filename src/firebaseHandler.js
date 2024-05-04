@@ -28,6 +28,10 @@ var uiConfig = {
         // User successfully signed in.
         // Return type determines whether we continue the redirect automatically
         // or whether we leave that to developer to handle.
+        console.log('yes')
+        const greyOut = document.querySelector(".grey-out");
+        greyOut.style.display = 'none';
+        console.log(authResult.user.uid)
         return false;
       },
       uiShown: function() {
@@ -46,12 +50,11 @@ var uiConfig = {
   };
 var ui = new firebaseui.auth.AuthUI(firebase.auth());
 ui.start('#firebaseui-auth-container', uiConfig);
-console.log('test')
 
 // // Handle sign-in UI visibility
 if (ui.isPendingRedirect()) {
     ui.start('#firebaseui-auth-container', uiConfig);
-  }
+}
 
 
 

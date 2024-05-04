@@ -25,8 +25,11 @@ let changedState = false;
 let currentGeoJSON;
 // Initial state of map, also ensures points stay the same when style changes
 map.on('style.load', () => {
+    map.resize()
+    console.log('Map resized')
     if (!changedState) {
-        addPointLayer('./assets/Air_Facilities.geojson')
+        // addPointLayer('./assets/Air_Facilities.geojson')
+        updateMapData(currentGeoJSON)
     }
     if (changedState) {
         updateMapData(currentGeoJSON);
@@ -54,25 +57,57 @@ function addPointLayer(geojsonSource) {
         generateId: true // Ensure that each feature has a unique ID at the PROPERTY level
     });
 
+    // map.addLayer({
+    //     'id': 'latestLayer',
+    //     'type': 'circle',
+    //     'source': 'latestSource',
+    //     'paint': {
+    //         'circle-color': [
+    //             'case',
+    //             ['boolean', ['feature-state', 'hover'], false],
+    //             '#FF0000', // Red color when hover state is true
+    //             '#FFFFFF' // White color when hover state is false
+    //         ],
+    //         'circle-radius': [
+    //             'case',
+    //             ['boolean', ['feature-state', 'hover'], false],
+    //             8, // Larger when true
+    //             3
+    //         ],
+    //         'circle-stroke-width': 1,
+    //         'circle-stroke-color': 'white'
+    //     }
+    // });
+
     map.addLayer({
         'id': 'latestLayer',
         'type': 'circle',
         'source': 'latestSource',
         'paint': {
             'circle-color': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
-                '#FF0000', // Red color when hover state is true
-                '#FFFFFF' // White color when hover state is false
+                'match',
+                ['get', 'classification'],
+                'Undefined', '#FFB200',
+                'Bare', '#000000',
+                'Partly', '#B2B2B2',
+                'Full', '#FFFFFF',
+                '#FFFFFF'
             ],
             'circle-radius': [
                 'case',
                 ['boolean', ['feature-state', 'hover'], false],
-                7,
-                3
+                9, // Larger when true
+                5
             ],
-            'circle-stroke-width': 1,
-            'circle-stroke-color': 'white'
+            'circle-stroke-width': [
+                'case',
+                ['boolean', ['feature-state', 'hover'], false],
+                2,
+                0.5
+            ],
+            'circle-stroke-color': 'white',
+            'circle-emissive-strength': 20,
+            'circle-sort-key': 'timestamp'
         }
     });
 }
@@ -98,12 +133,13 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 const idDisplay = document.getElementById('pointID');
-const labelDisplay = document.getElementById('maplabel');
+const timeDisplay = document.getElementById('pointTimestamp');
+const imageDisplay = document.getElementById('pointImage');
 
 let pointID = null;
 let uniqueID = null;
 let clickedPoint = false;
-let clickedPointValues = [];
+let clickedPointValues = {};
 
 // General point interactivity
 map.on('mouseleave', 'latestLayer', () => {
@@ -120,12 +156,14 @@ map.on('mouseleave', 'latestLayer', () => {
     // console.log(clickedPoint);
     if (!clickedPoint) {
         idDisplay.textContent = '';
-        labelDisplay.textContent = '';
+        timeDisplay.textContent = '';
+        imageDisplay.src = '';
     } else if (clickedPoint) {
-        idDisplay.textContent = clickedPointValues[1];
-        labelDisplay.textContent = clickedPointValues[2];
+        idDisplay.textContent = clickedPointValues.avlID;
+        timeDisplay.textContent = clickedPointValues.timestamp;
+        imageDisplay.src = clickedPointValues.image;
         map.setFeatureState(
-            { source: 'latestSource', id: clickedPointValues[0] },
+            { source: 'latestSource', id: clickedPointValues.specificID },
             { hover: true }
         );
     }
@@ -137,7 +175,7 @@ map.on('click', 'latestLayer', (event) => {
 
     if (clickedPoint) {
         map.setFeatureState(
-            { source: 'latestSource', id: clickedPointValues[0] },
+            { source: 'latestSource', id: clickedPointValues.specificID },
             { hover: false }
         )
     }
@@ -147,15 +185,36 @@ map.on('click', 'latestLayer', (event) => {
         pitch: 0,
         bearing: 0
     })
+    
     clickedPoint = true;
-    clickedPointValues = [
-        event.features[0]['id'], 
-        event.features[0].properties.OBJECTID, 
-        event.features[0].properties.MAPLABELNA
-    ];
-    idDisplay.textContent = clickedPointValues[1];
-    labelDisplay.textContent = clickedPointValues[2];
+
+    // Define how values are interpreted
+    let eventProperties = event.features[0].properties
+
+    clickedPointValues = {
+        specificID: event.features[0]['id'], 
+        avlID: eventProperties.id, 
+        timestamp: timestampToISOString(eventProperties.timestamp),
+        classification: eventProperties.classification,
+        classes: eventProperties.class,
+        image: eventProperties.url
+    };
+
+    idDisplay.textContent = clickedPointValues.avlID;
+    timeDisplay.textContent = clickedPointValues.timestamp;
+    imageDisplay.src = clickedPointValues.image;
 })
+
+function timestampToISOString(timestamp) {
+    var date = new Date(timestamp * 1000);
+    var month = ('0' + (date.getMonth() + 1)).slice(-2);
+    var day = ('0' + date.getDate()).slice(-2);
+    var year = date.getFullYear();
+    var hours = ('0' + date.getHours()).slice(-2);
+    var minutes = ('0' + date.getMinutes()).slice(-2);
+    
+    return month + '-' + day + '-' + year + ' ' + hours + ':' + minutes;
+}
 
 // Remove this function if not working properly
 map.on('mousemove', 'latestLayer', (event) => {
@@ -188,14 +247,16 @@ map.on('mousemove', 'latestLayer', (event) => {
             uniqueID = hoveredFeatureId;
 
             // Update UI with the hovered feature's information
-            idDisplay.textContent = hoveredFeature.properties.OBJECTID;
-            labelDisplay.textContent = hoveredFeature.properties.MAPLABELNA;
+            idDisplay.textContent = hoveredFeature.properties.id;
+            timeDisplay.textContent = timestampToISOString(hoveredFeature.properties.timestamp);
+            imageDisplay.src = hoveredFeature.properties.url;
         }
     } else {
         // If no features are hovered, reset cursor, clear UI, and clear feature state
         map.getCanvas().style.cursor = 'default';
         idDisplay.textContent = '';
-        labelDisplay.textContent = '';
+        timeDisplay.textContent = '';
+        imageDisplay.src = '';
 
         if (uniqueID !== null) {
             map.setFeatureState(

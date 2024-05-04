@@ -8,16 +8,15 @@
     
     <!-- Mapbox Stylesheets -->
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">
-    
 
 <script defer src="main.js"></script></head>
 
 <body>
-    <div class="sign-in-container">
+    <!-- <div class="sign-in-container">
         <div class="grey-out"></div>
         <div id="firebaseui-auth-container"></div>
         <div id="loader">Loading...</div>
-    </div>
+    </div> -->
 
     <div class ="ui-container">
         <div id="header">
@@ -93,13 +92,13 @@
                 
                 <hr id='console-break' style="width: 100%; margin:1em 0;">
                 <div><strong>ID:</strong>&nbsp;<span id="pointID"></span></div>
-                <div><strong>Label:</strong>&nbsp;<span id="maplabel"></span></div>
+                <div><strong>Time:</strong>&nbsp;<span id="pointTimestamp"></span></div>
 
                 <div id='console-content'>
-                    <div class="snowplow-div">
-                        <img id="snowplow-img" src="./assets/snowplow.jpg">
+                    <div class="snowplow-data">
+                        <img id="pointImage" src="./assets/snowplow.jpg">
                     </div>
-                    <div class="class-div">
+                    <div class="class-data">
                         <img id="chart-placeholder" src="./assets/snowplow.jpg">
                     </div>
                 </div>

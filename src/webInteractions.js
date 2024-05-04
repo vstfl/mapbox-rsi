@@ -92,15 +92,18 @@ function convertToGeoJSON(pointList) {
     for (const point of pointList) {
         const base = point['data'];
         const id = point['id'];
+
         // Grab and organize all relevant values
         const lat = base['Position']["latitude"];
         const lng = base['Position']['longitude'];
-        const classification = {
+        const classes = {
             Undefined: base['Undefined'],
             Bare: base['Bare'],
             Full: base['Full'],
             Partly: base['Partly']
         };
+
+        const classification = highestNumberString(base['Undefined'], base['Bare'], base['Full'], base['Partly'])
         const url = base["IMAGE_URL"];
         const timestamp = base['Date']['seconds']
 
@@ -108,11 +111,25 @@ function convertToGeoJSON(pointList) {
             id: id,
             lat: lat,
             lng: lng,
-            class: classification,
+            class: classes,
+            classification: classification,
             url: url,
             timestamp: timestamp
         })
     }
 
     return geojson.parse(data, {Point: ['lat', 'lng']})
+}
+
+function highestNumberString(unde, bare, full, part) {
+    var highest = Math.max(unde, bare, full, part);
+    if (highest === unde) {
+        return "Undefined";
+    } else if (highest === bare) {
+        return "Bare";
+    } else if (highest === full) {
+        return "Full";
+    } else if (highest === part) {
+        return "Partly";
+    };
 }
