@@ -3,9 +3,8 @@ import { queryImagesByDateRange } from './firebaseHandler.js';
 import { updateMapData } from './mapInteractions.js';
 import * as geojson from 'geojson';
 
+
 // Handle realtime toggle
-const consoleContainer = document.getElementById('inner-console');
-const consoleBreak = document.getElementById('console-break');
 const realtimeToggle = document.querySelector("#realtime-toggle");
 const archivedQuery = document.querySelectorAll(".archived-query");
 let realtimeState = false;
@@ -25,8 +24,6 @@ realtimeToggle.addEventListener('change', e => {
     console.log(`Realtime: ${realtimeState}`);
 });
 
-//
-
 // Handle console shift toggle button
 document.getElementById('shift-button').addEventListener('click', function() {
     document.getElementById('console').classList.toggle('shifted');
@@ -34,7 +31,6 @@ document.getElementById('shift-button').addEventListener('click', function() {
     var arrowImg = document.getElementById('arrow-img');
     arrowImg.classList.toggle('flipped');
 }); 
-
 
 // Handle range slider value change visual
 const slider = document.getElementById('time-range');
@@ -45,7 +41,6 @@ slider.addEventListener('input', function() {
     currentRange = this.value;
     console.log(currentRange);
 })
-
 
 export function scrollToBottom() {
     let consoleDiv = document.querySelector('.console.resizable');
@@ -82,7 +77,6 @@ document.getElementById('query-form').addEventListener('submit', async function(
         updateMapData(newGeoJSON);
     }
 });
-
 
 
 // Logic to update website every minute if in realtime mode

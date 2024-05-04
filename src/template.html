@@ -11,14 +11,18 @@
 
 </head>
 
-<body>
-    <!-- <div class="sign-in-container">
+<body style="background-color: rgb(36, 36, 36)">
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader"></div>
+    </div>
+
+    <!-- <div class="sign-in-container loadup" style="opacity: 0">
         <div class="grey-out"></div>
         <div id="firebaseui-auth-container"></div>
         <div id="loader">Loading...</div>
     </div> -->
 
-    <div class ="ui-container">
+    <div class ="ui-container loadup" style="opacity: 0">
         <div id="header">
             <div class="left-side">
                 <a href = "./index.html" class="logo">
@@ -96,7 +100,7 @@
                     <div><strong>Time:</strong> <span id="pointTimestamp"></span></div>
                 </div>
 
-                <div id='console-content'>
+                <div id='console-content' class="loadup" style="opacity: 0">
                     <div class="snowplow-data">
                         <img id="pointImage" src="./assets/snowplow.jpg">
                     </div>
@@ -108,12 +112,12 @@
         </section>
     </div> 
 
-    <section class ="map-container">
+    <section class ="map-container loadup" style="opacity: 0">
         <div id="map"></div>
 
     </section>
 
-    <div class="map-styles">
+    <div class="map-styles loadup" style="opacity: 0">
         <label class="radio">
           <input type="radio" name="radio" value="clve9aeu900c501rd7qcn14q6" checked="">
           <span class="name">Dark</span>
