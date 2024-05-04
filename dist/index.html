@@ -27,7 +27,7 @@
             </div>
             
             <div class="right-side">
-                <a class="nav nav-text" href="#" onclick="panToIowa()">Home</a>
+                <a class="nav nav-text" href="#" id="center-iowa">Home</a>
                 <div class="dropdown nav">
                     <p class="nav nav-text">Tools</p>
                     <div class="dropdown-content">
@@ -46,7 +46,7 @@
             <div class="console resizable" id="inner-console">
                 <form class="form-resize" id="query-form">
                     <div class = "realtime-div">
-                        <label for="realtime-toggle" style="margin-right: 12px">Enable Real-Time:</label>
+                        <label for="realtime-toggle" style="margin-right: 12px;">Enable Real-Time:</label>
                         <label class="switch" id="realtime-toggle">
                             <input type="checkbox" id="realtime-toggle">
                             <span class="slider round"></span>
@@ -90,16 +90,18 @@
                     </div>
                 </form>
                 
-                <hr id='console-break' style="width: 100%; margin:1em 0;">
-                <div><strong>ID:</strong>&nbsp;<span id="pointID"></span></div>
-                <div><strong>Time:</strong>&nbsp;<span id="pointTimestamp"></span></div>
+                <hr id='console-break' style="width: 100%; margin:0.5em 0; border: 1px solid rgba(95, 95, 95, 0.568); ">
+                <div id='point-info'>
+                    <div><strong>ID:</strong> <span id="pointID"></span></div>
+                    <div><strong>Time:</strong> <span id="pointTimestamp"></span></div>
+                </div>
 
                 <div id='console-content'>
                     <div class="snowplow-data">
                         <img id="pointImage" src="./assets/snowplow.jpg">
                     </div>
                     <div class="class-data">
-                        <img id="chart-placeholder" src="./assets/snowplow.jpg">
+                        <canvas id="donutchart"></canvas>
                     </div>
                 </div>
             </div>

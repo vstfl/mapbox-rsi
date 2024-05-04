@@ -54,7 +54,7 @@ body {
     align-items: center;
     background-color: #37373762;
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.596);
-    backdrop-filter: blur(8px) saturate(40%) contrast(80%);
+    backdrop-filter: blur(8px) saturate(80%);
     border-radius: 20px;
     padding: 0px 10px;
 }
@@ -135,7 +135,7 @@ a.nav, div.nav{
 }
 
 .console-container.shifted {
-    transform: translateX(-70%);
+    transform: translateX(-77%);
     transition: transform 0.5s ease,  width 0.5s ease;
     width: 200px !important;
 }
@@ -152,19 +152,19 @@ a.nav, div.nav{
 
 .console-container {
     position: absolute;
-    top: 5vh;
+    top: 7vh;
     margin: 3vh 0 3vh -2vw;
     width: 35vw;
-    height: 77vh;
-    background-color: #37373762;
+    height: 80vh;
+    background-color: #37373721;
     padding: 10px 30px;
     border-radius: 20px;
     box-shadow: 0px 0px 50px rgba(0, 0, 0, 0.596);
-    backdrop-filter: blur(14px) saturate(40%) contrast(80%);
+    backdrop-filter: blur(10px) saturate(80%);
     z-index: 1;
     resize: horizontal;
     overflow: hidden;
-    max-width: 35vw;
+    max-width: 50vw;
     min-width: 250px;
     transition: transform 0.5s ease, opacity 0.5s ease-in;
 }
@@ -177,27 +177,52 @@ a.nav, div.nav{
     overflow-x: hidden;
 }
 
+.console.resizable::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px; /* Adjust height as needed for fade effect */
+    pointer-events: none; /* Ensure pseudo-element does not interfere with mouse events */
+    background: linear-gradient(to top, rgba(255, 255, 255, 0), #22222291); 
+    z-index: 5;
+}
+.console.resizable::after {
+    content: "";
+    position: fixed;
+    bottom: 0px;
+    left: 0;
+    right: 0;
+    height: 60px; /* Adjust height as needed for fade effect */
+    pointer-events: none; /* Ensure pseudo-element does not interfere with mouse events */
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #22222294); 
+    z-index: 5;
+}
+
 ::-webkit-scrollbar {
-    width: 2.0em;
+    width: 2.3em;
 }
 
 ::-webkit-scrollbar-track{
-    margin-left: 30px;
-}
-
-::-webkit-scrollbar-track-piece:end {
-    background: transparent;
-}
-
-::-webkit-scrollbar-track-piece:start {
-    background: transparent;
+    background: rgba(0, 0, 0, 0.157);
+    border-radius: 100px;
+    border: 15px solid transparent;
+    background-clip: content-box;
     margin-top: 40px;
 }
 
-::-webkit-scrollbar-thumb:hover{
-    background: rgba(231, 231, 231, 0.201);
+::-webkit-scrollbar-thumb{
+    background: rgba(95, 95, 95, 0.568);
     border-radius: 100px;
-    border: 12px solid transparent;
+    border: 15px solid transparent;
+    background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover{
+    background: rgba(202, 202, 202, 0.568);
+    border-radius: 100px;
+    border: 15px solid transparent;
     background-clip: content-box;
 }
 
@@ -208,7 +233,7 @@ a.nav, div.nav{
     text-align: left;
     display:flex;
     flex-direction: column;
-    width: calc(100% - 3vw - 20px);
+    width: calc(100% - 2.5vw - 10px);
 }
 
 .realtime-div {
@@ -245,7 +270,7 @@ form .datetime-div {
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    height: 2em;
+    height: 1.5em;
     flex-wrap: wrap;
     margin-top: 5px;
 }
@@ -275,6 +300,13 @@ input[type='range']:hover{
     width: 100%;
 }
 
+#submit-query:disabled {
+    background-color: grey !important;
+    cursor: not-allowed !important;
+    font-weight: normal !important;
+    color: lightgrey;
+}
+
 #submit-query:hover {
     font-weight: bolder;
     cursor: pointer;
@@ -287,6 +319,7 @@ input[type='range']:hover{
     width: 100%;
     border: none;
     border-radius: 7px;
+    margin-top:10px;
     height: 2em;
 }
 
@@ -399,28 +432,23 @@ input[type='range']:hover{
 
 #console-content {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     height: 100%;
+    justify-content: space-evenly;
 }
 
 #pointImage {
     height: auto;
     width: 100%;
     max-width:100%;
+    border-radius: 10px;
 }
 
-/* .snowplow-div {
-    flex: 1 1 35vw;
-}
-
-.class-div {
-    flex: 1 1 35vw;
-} */
-
-#chart-placeholder {
-    height: auto; 
-    width: 100%; 
-    max-width: 25vw;
+.class-data {
+    /* flex: 1 1 100%; */
+    height: 100%;
+    max-height: 40vh;
+    width: 100%;
 }
 
 .mapboxgl-ctrl-scale {
@@ -432,4 +460,16 @@ input[type='range']:hover{
     background-color: rgba(255, 255, 255, 0.7);
     border: 1px solid #181818;
     font-size: 8px;
+}
+
+#point-info {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 0.7em
+}
+
+#point-info div {
+    display: inline-block;
+    flex-basis: 50%;
+    box-sizing: border-box;
 }

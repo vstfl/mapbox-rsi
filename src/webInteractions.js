@@ -46,9 +46,24 @@ slider.addEventListener('input', function() {
     console.log(currentRange);
 })
 
+
+export function scrollToBottom() {
+    let consoleDiv = document.querySelector('.console.resizable');
+    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+}
+
 // Handle form submission for querying
 document.getElementById('query-form').addEventListener('submit', async function(event) {
     event.preventDefault(); // Prevent form submission
+    const btn = document.getElementById("submit-query");
+    scrollToBottom();
+
+    btn.disabled = true;
+    btn.style.cursor = 'not-allowed';
+    setTimeout(()=>{
+        btn.disabled = false;
+        btn.style.cursor = 'pointer'
+        console.log('Button Available')}, 3000)
     
     if (!realtimeState) {
         const formData = new FormData(this);
@@ -63,10 +78,12 @@ document.getElementById('query-form').addEventListener('submit', async function(
         const newGeoJSON = convertToGeoJSON(imageQuery);
 
         const geojsonString = JSON.stringify(newGeoJSON, null, 2);
-        console.log(geojsonString);
+        // console.log(geojsonString);
         updateMapData(newGeoJSON);
     }
 });
+
+
 
 // Logic to update website every minute if in realtime mode
 function updateRealtimeData() {
@@ -87,11 +104,15 @@ function calculateDataRange(date, windowSize) {
     return [startDate, endDate];
 }
 
+function removeLettersAfterUnderscore(str) {
+    return str.replace(/_.*/, '');
+}
+
 function convertToGeoJSON(pointList) {
     let data = [];
     for (const point of pointList) {
         const base = point['data'];
-        const id = point['id'];
+        const id = removeLettersAfterUnderscore(point['id']);
 
         // Grab and organize all relevant values
         const lat = base['Position']["latitude"];

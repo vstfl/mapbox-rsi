@@ -1,4 +1,5 @@
 import mapboxgl from 'mapbox-gl';
+import { scrollToBottom } from './webInteractions';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoidXJiaXp0b24iLCJhIjoiY2xsZTZvaXd0MGc4MjNzbmdseWNjM213eiJ9.z1YeFXYSbaMe93SMT6muVg';
             const map = new mapboxgl.Map({
@@ -12,14 +13,19 @@ mapboxgl.accessToken = 'pk.eyJ1IjoidXJiaXp0b24iLCJhIjoiY2xsZTZvaXd0MGc4MjNzbmdse
             map.addControl(new mapboxgl.NavigationControl({visualizePitch: true}),'bottom-right');
             map.addControl(new mapboxgl.ScaleControl({maxWidth: 300, unit: 'imperial'})); // see if i can modify positioning later
 
+// When user clicks home, pans back to iowa
 function panToIowa() {
     map.flyTo({
         center: [-93.53, 41.99],
-        zoom: 6,
+        zoom: 6.7,
         pitch: 0,
         bearing: 0
-    })
+    });
 }
+document.getElementById('center-iowa').addEventListener('click', function(event) {
+    event.preventDefault();
+    panToIowa();
+});
 
 let changedState = false;
 let currentGeoJSON;
@@ -57,28 +63,6 @@ function addPointLayer(geojsonSource) {
         generateId: true // Ensure that each feature has a unique ID at the PROPERTY level
     });
 
-    // map.addLayer({
-    //     'id': 'latestLayer',
-    //     'type': 'circle',
-    //     'source': 'latestSource',
-    //     'paint': {
-    //         'circle-color': [
-    //             'case',
-    //             ['boolean', ['feature-state', 'hover'], false],
-    //             '#FF0000', // Red color when hover state is true
-    //             '#FFFFFF' // White color when hover state is false
-    //         ],
-    //         'circle-radius': [
-    //             'case',
-    //             ['boolean', ['feature-state', 'hover'], false],
-    //             8, // Larger when true
-    //             3
-    //         ],
-    //         'circle-stroke-width': 1,
-    //         'circle-stroke-color': 'white'
-    //     }
-    // });
-
     map.addLayer({
         'id': 'latestLayer',
         'type': 'circle',
@@ -87,9 +71,9 @@ function addPointLayer(geojsonSource) {
             'circle-color': [
                 'match',
                 ['get', 'classification'],
-                'Undefined', '#FFB200',
+                'Undefined', '#FFAA00',
                 'Bare', '#000000',
-                'Partly', '#B2B2B2',
+                'Partly', '#909090',
                 'Full', '#FFFFFF',
                 '#FFFFFF'
             ],
@@ -106,12 +90,10 @@ function addPointLayer(geojsonSource) {
                 0.5
             ],
             'circle-stroke-color': 'white',
-            'circle-emissive-strength': 20,
             'circle-sort-key': 'timestamp'
         }
     });
 }
-
 
 // Handle map style change
 document.addEventListener("DOMContentLoaded", function() {
@@ -171,7 +153,8 @@ map.on('mouseleave', 'latestLayer', () => {
 
 map.on('click', 'latestLayer', (event) => {
     const features = map.queryRenderedFeatures(event.point, { layers: ['latestLayer']});
-    let coordinate = features[0].geometry.coordinates
+    let coordinate = features[0].geometry.coordinates;
+    scrollToBottom();
 
     if (clickedPoint) {
         map.setFeatureState(
@@ -183,7 +166,8 @@ map.on('click', 'latestLayer', (event) => {
     map.flyTo({
         center: coordinate,
         pitch: 0,
-        bearing: 0
+        bearing: 0,
+        duration: 600,
     })
     
     clickedPoint = true;
@@ -207,15 +191,19 @@ map.on('click', 'latestLayer', (event) => {
 
 function timestampToISOString(timestamp) {
     var date = new Date(timestamp * 1000);
-    var month = ('0' + (date.getMonth() + 1)).slice(-2);
+    var monthNames = ["January", "February", "March", "April", "May", "June",
+                      "July", "August", "September", "October", "November", "December"];
+    var month = monthNames[date.getMonth()];
     var day = ('0' + date.getDate()).slice(-2);
     var year = date.getFullYear();
-    var hours = ('0' + date.getHours()).slice(-2);
+    var hours = date.getHours();
+    var ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // Handle midnight (0 hours)
     var minutes = ('0' + date.getMinutes()).slice(-2);
     
-    return month + '-' + day + '-' + year + ' ' + hours + ':' + minutes;
+    return month + ' ' + day + ', ' + year + ' - ' + hours + ':' + minutes + ' ' + ampm;
 }
-
 // Remove this function if not working properly
 map.on('mousemove', 'latestLayer', (event) => {
     map.getCanvas().style.cursor = 'pointer';
