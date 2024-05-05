@@ -43,8 +43,10 @@ const config = {
                         size: 14
                     },
                     color: 'white'
-                }
-
+                },
+                onClick: function(event, legendItem, legend) {
+                    const classification = legendItem.text; // Get the classification from legend item 
+                    toggleMapVisibility(classification); // Toggle visibility in Mapbox
             }
         },
         maintainAspectRatio: false,
@@ -55,10 +57,19 @@ const config = {
         layout: {
             padding: 20,
         },
-        hoverOffset: 20
+        hoverOffset: 20,
+        }
     }
 };
 
+function toggleMapVisibility(classification) {
+    // console.log(classification);
+    // Set layout property for each classification
+    map.setLayoutProperty('latestLayer',
+        'visibility',
+        ['match', ['get', 'classification'], classification, 'none']
+    );
+}
 
 // Create a function to update chart options based on container width
 function updateChartOptions() {
