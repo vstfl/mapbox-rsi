@@ -8,8 +8,8 @@ const data = {
         'Bare'
     ],
     datasets: [{
-        label: 'My First Dataset',
-        data: [300, 50, 100, 30],
+        label: ' Deep Learning Prediction',
+        data: [0.5, 0.3, 0, 0.2], // Undefined, Fully, Partly, Bare
         backgroundColor: [
         '#FFAA00',
         '#FFFFFF',
@@ -73,10 +73,35 @@ function updateChartOptions() {
     }
 }
 
-const chart = new Chart(
-    document.getElementById('donutchart'),
-    config
-);
+function roundListToPrecision(list, precision) {
+    return list.map(function (element) {
+        return parseFloat(element.toFixed(precision));
+    });
+}
+
+export function removeData(chart) {
+    // chart.data.labels.pop();
+    chart.data.datasets[0].data = [];
+    chart.update();
+}
+
+export function addData(chart, newData) { // Undefined, Fully, Partly, Bare
+    const jsonObject = JSON.parse(newData);
+    const listForm = [jsonObject.Undefined, jsonObject.Full, jsonObject.Partly, jsonObject.Bare];
+    const rounded = roundListToPrecision(listForm, 8);
+    // chart.data.labels.push(' Deep Learning Prediction');
+    chart.data.datasets[0].data = rounded;
+    console.log(chart.data.datasets);
+    chart.update();
+}
+
+export function newChart() {
+    const chart = new Chart(
+        document.getElementById('donutchart'),
+        config
+    )
+    return chart
+};
 
 
 

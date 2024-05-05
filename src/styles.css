@@ -209,10 +209,10 @@ a.nav, div.nav{
     top: 0;
     left: 0;
     right: 0;
-    height: 40px; /* Adjust height as needed for fade effect */
+    height: 100px; /* Adjust height as needed for fade effect */
     pointer-events: none; /* Ensure pseudo-element does not interfere with mouse events */
     background: linear-gradient(to top, rgba(255, 255, 255, 0), #22222291); 
-    z-index: 5;
+    z-index: -1;
 }
 .console.resizable::after {
     content: "";

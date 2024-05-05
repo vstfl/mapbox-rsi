@@ -1,12 +1,13 @@
 import mapboxgl from 'mapbox-gl';
 import { scrollToBottom } from './webInteractions';
+import { addData, removeData, newChart } from './charts.js';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoidXJiaXp0b24iLCJhIjoiY2xsZTZvaXd0MGc4MjNzbmdseWNjM213eiJ9.z1YeFXYSbaMe93SMT6muVg';
             const map = new mapboxgl.Map({
                 container: 'map', 
                 style: 'mapbox://styles/urbizton/clve9aeu900c501rd7qcn14q6', // Default Dark
 
-                center: [-93.53, 41.99],
+                center: [-94.53, 41.99],
                 zoom: 6.4,
                 maxZoom: 14,
             });
@@ -16,7 +17,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoidXJiaXp0b24iLCJhIjoiY2xsZTZvaXd0MGc4MjNzbmdse
 // When user clicks home, pans back to iowa
 function panToIowa() {
     map.flyTo({
-        center: [-93.53, 41.99],
+        center: [-94.53, 41.99],
         zoom: 6.7,
         pitch: 0,
         bearing: 0
@@ -26,6 +27,28 @@ document.getElementById('center-iowa').addEventListener('click', function(event)
     event.preventDefault();
     panToIowa();
 });
+
+function panToAverage(coordinates) {
+    let sumLong = 0;
+    let sumLat = 0;
+
+    for (let i = 0; i < coordinates.length; i++) {
+        sumLong += coordinates[i][0]; // longitude
+        sumLat += coordinates[i][1]; // latitude
+    }
+
+    // Calculate the average longitude and latitude
+    const avgLongitude = sumLong / coordinates.length;
+    const avgLatitude = sumLat/ coordinates.length;
+
+    // Return the average longitude and latitude as an array
+    map.flyTo({
+        center: [avgLongitude, avgLatitude],
+        zoom: 6.5,
+        pitch: 0,
+        bearing: 0
+    });
+};
 
 let changedState = false;
 let currentGeoJSON;
@@ -42,6 +65,17 @@ map.on('style.load', () => {
     }
 });
 
+// Obtain list of all coordinates from geoJSON
+function extractCoordinatesFromGeoJSON(geoJSON) {
+    if (geoJSON.type === "FeatureCollection") {
+        return geoJSON.features.map(feature => feature.geometry.coordinates);
+    } else if (geoJSON.type === "Feature") {
+        return [geoJSON.geometry.coordinates];
+    } else {
+        return [];
+    }
+}
+
 // Handle update of map data
 export function updateMapData(newGeoJSON) {
     if (map.getLayer('latestLayer')) {
@@ -53,6 +87,7 @@ export function updateMapData(newGeoJSON) {
     addPointLayer(newGeoJSON);
     changedState = true;
     currentGeoJSON = newGeoJSON;
+    panToAverage(extractCoordinatesFromGeoJSON(currentGeoJSON));
 }
 
 // Customize visualization/interactivity of geoJSON data here
@@ -117,6 +152,7 @@ document.addEventListener("DOMContentLoaded", function() {
 const idDisplay = document.getElementById('pointID');
 const timeDisplay = document.getElementById('pointTimestamp');
 const imageDisplay = document.getElementById('pointImage');
+const chart = newChart()
 
 let pointID = null;
 let uniqueID = null;
@@ -140,10 +176,13 @@ map.on('mouseleave', 'latestLayer', () => {
         idDisplay.textContent = '';
         timeDisplay.textContent = '';
         imageDisplay.src = '';
+        removeData(chart);
     } else if (clickedPoint) {
         idDisplay.textContent = clickedPointValues.avlID;
         timeDisplay.textContent = clickedPointValues.timestamp;
         imageDisplay.src = clickedPointValues.image;
+        removeData(chart);
+        addData(chart, clickedPointValues.classes);
         map.setFeatureState(
             { source: 'latestSource', id: clickedPointValues.specificID },
             { hover: true }
@@ -165,8 +204,8 @@ map.on('click', 'latestLayer', (event) => {
 
     map.flyTo({
         center: coordinate,
-        pitch: 0,
-        bearing: 0,
+        // pitch: 0,
+        // bearing: 0,
         duration: 600,
     })
     
@@ -187,7 +226,10 @@ map.on('click', 'latestLayer', (event) => {
     idDisplay.textContent = clickedPointValues.avlID;
     timeDisplay.textContent = clickedPointValues.timestamp;
     imageDisplay.src = clickedPointValues.image;
+    removeData(chart);
+    addData(chart, clickedPointValues.classes);
 })
+
 
 function timestampToISOString(timestamp) {
     var date = new Date(timestamp * 1000);
@@ -238,6 +280,8 @@ map.on('mousemove', 'latestLayer', (event) => {
             idDisplay.textContent = hoveredFeature.properties.id;
             timeDisplay.textContent = timestampToISOString(hoveredFeature.properties.timestamp);
             imageDisplay.src = hoveredFeature.properties.url;
+            removeData(chart);
+            addData(chart, hoveredFeature.properties.class);
         }
     } else {
         // If no features are hovered, reset cursor, clear UI, and clear feature state
@@ -245,6 +289,7 @@ map.on('mousemove', 'latestLayer', (event) => {
         idDisplay.textContent = '';
         timeDisplay.textContent = '';
         imageDisplay.src = '';
+        removeData(chart);
 
         if (uniqueID !== null) {
             map.setFeatureState(
@@ -257,3 +302,58 @@ map.on('mousemove', 'latestLayer', (event) => {
 });
 
 
+
+// Function to shift/zoom the map view based on changes in container width (thank you chatgpt)
+function shiftMapView() {
+    const currentCenter = map.getCenter();
+    let currentZoom = map.getZoom();
+
+    const containerWidth = document.getElementById('console').offsetWidth;
+
+    // Check if the container width has changed
+    if (containerWidth !== prevContainerWidth) {
+
+        const widthChange = containerWidth - prevContainerWidth;
+
+        // Calculate the relative change in container width
+        const widthRatio = prevContainerWidth / containerWidth;
+
+        // Calculate the new zoom level based on the relative change in width
+        currentZoom *= widthRatio ** 0.1; // Adjust this value if you want more extreme zooms
+
+        // Project current center to screen coordinates
+        const currentScreenPoint = map.project(currentCenter);
+
+        // Calculate new screen coordinates based on the change in container width
+        const newScreenX = currentScreenPoint.x - widthChange*0.7;
+        const newScreenY = currentScreenPoint.y;
+
+        // Unproject new screen coordinates back to geographical coordinates
+        const newCenter = map.unproject([newScreenX, newScreenY]);
+
+        map.setCenter(newCenter);
+        map.setZoom(currentZoom)
+        prevContainerWidth = containerWidth;
+    }
+}
+
+// Wait till elements are loaded before recording container width
+let prevContainerWidth;
+setTimeout(() => {
+    prevContainerWidth = document.getElementById('console').offsetWidth;
+}, 1000);
+
+let isMouseDown = false;
+window.addEventListener('mousedown', (event) => {
+    if (event.target.id === 'console') {
+        isMouseDown = true;
+    }
+});
+window.addEventListener('mousemove', () => {
+    if (isMouseDown) {
+        shiftMapView();
+    }
+});
+window.addEventListener('mouseup', () => {
+    isMouseDown = false;
+});

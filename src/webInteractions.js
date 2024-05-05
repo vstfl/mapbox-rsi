@@ -1,6 +1,6 @@
 
 import { queryImagesByDateRange } from './firebaseHandler.js';
-import { updateMapData } from './mapInteractions.js';
+import { updateMapData, panToAverage } from './mapInteractions.js';
 import * as geojson from 'geojson';
 
 
@@ -92,9 +92,11 @@ function updateRealtimeData() {
 setInterval(updateRealtimeData, 60000);
 
 function calculateDataRange(date, windowSize) {
+    let timeDiff = windowSize * 1 //change to 60 for hours
     const dateTime = new Date(date);
-    const startDate = new Date(dateTime.getTime() - (windowSize * 60000));
-    const endDate = new Date(dateTime.getTime() + (windowSize * 60000));
+    const startDate = new Date(dateTime.getTime() - (timeDiff * 60000)); 
+    const endDate = new Date(dateTime.getTime() + (timeDiff * 60000));
+    console.log('start: ' + startDate + '\n\n end:' + endDate);
     return [startDate, endDate];
 }
 

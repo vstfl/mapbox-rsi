@@ -65,7 +65,7 @@ export async function queryImagesByDateRange(startDate, endDate) {
     const collectionRef = collectionGroup(db, 'Images')
 
     const images = await query(collectionRef,
-        limit(100), // TODO: Adjust this later
+        limit(1000), // TODO: Adjust this later
         where('Date', '>=', startDate),
         where('Date', '<=', endDate)
         )
