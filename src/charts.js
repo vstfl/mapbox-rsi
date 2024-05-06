@@ -10,7 +10,7 @@ const data = {
     ],
     datasets: [{
         label: ' Deep Learning Prediction',
-        data: [0.5, 0.3, 0, 0.2], // Undefined, Fully, Partly, Bare
+        data: [0.3, 0.5, 0.15, 0.05], // Undefined, Fully, Partly, Bare
         backgroundColor: [
         '#FFAA00',
         '#FFFFFF',
@@ -96,6 +96,7 @@ function updateChartOptions() {
     } else {
         config.options.plugins.legend.position = 'right';
         config.options.plugins.legend.labels.padding = 30;
+        config.options.plugins.legend.padding = 5;
     }
 }
 
