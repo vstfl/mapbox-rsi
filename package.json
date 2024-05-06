@@ -9,7 +9,7 @@
     "dev": "webpack --mode development --watch"
   },
   "keywords": [],
-  "author": "",
+  "author": "Michael Urbiztondo",
   "license": "ISC",
   "devDependencies": {
     "css-loader": "^7.1.1",
