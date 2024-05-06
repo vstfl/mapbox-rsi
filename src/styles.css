@@ -472,7 +472,11 @@ input[type='range']:hover{
 
 .class-data {
     /* flex: 1 1 100%; */
-    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 125%;
     max-height: 40vh;
     width: 100%;
 }

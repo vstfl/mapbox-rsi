@@ -1,9 +1,10 @@
 import Chart from 'chart.js/auto';
+import { map } from './mapInteractions.js';
 
 const data = {
     labels: [
         'Undefined',
-        'Fully',
+        'Full',
         'Partly',
         'Bare'
     ],
@@ -45,11 +46,17 @@ const config = {
                     color: 'white'
                 },
                 onClick: function(event, legendItem, legend) {
+                    // Default behaviour
+                    legend.chart.toggleDataVisibility(legendItem.index);
+                    legend.chart.update();
+
+                    // Mapbox data visibility handling
                     const classification = legendItem.text; // Get the classification from legend item 
                     toggleMapVisibility(classification); // Toggle visibility in Mapbox
-            }
-        },
+                },
+            },
         maintainAspectRatio: false,
+        responsive: true,
         animation: {
             animateRotate: true,
             animateScale: true
@@ -62,14 +69,23 @@ const config = {
     }
 };
 
+
+
+let clickedLegendItems = ["Full", "Bare", "Partly", "Undefined"];
+
 function toggleMapVisibility(classification) {
-    // console.log(classification);
-    // Set layout property for each classification
-    map.setLayoutProperty('latestLayer',
-        'visibility',
-        ['match', ['get', 'classification'], classification, 'none']
-    );
+    const index = clickedLegendItems.indexOf(classification);
+    if (index !== -1) {
+        clickedLegendItems.splice(index, 1);
+    } else {
+        clickedLegendItems.push(classification);
+    }
+    console.log(clickedLegendItems);
+
+    // Construct set filter logic here.
+    map.setFilter('latestLayer', ['in', 'classification'].concat(clickedLegendItems));
 }
+
 
 // Create a function to update chart options based on container width
 function updateChartOptions() {
@@ -80,7 +96,6 @@ function updateChartOptions() {
     } else {
         config.options.plugins.legend.position = 'right';
         config.options.plugins.legend.labels.padding = 30;
-
     }
 }
 
@@ -91,29 +106,30 @@ function roundListToPrecision(list, precision) {
 }
 
 export function removeData(chart) {
-    // chart.data.labels.pop();
     chart.data.datasets[0].data = [];
     chart.update();
+    chart.canvas.parentNode.style.display = 'none';
 }
 
 export function addData(chart, newData) { // Undefined, Fully, Partly, Bare
     const jsonObject = JSON.parse(newData);
     const listForm = [jsonObject.Undefined, jsonObject.Full, jsonObject.Partly, jsonObject.Bare];
     const rounded = roundListToPrecision(listForm, 8);
-    // chart.data.labels.push(' Deep Learning Prediction');
     chart.data.datasets[0].data = rounded;
     console.log(chart.data.datasets);
     chart.update();
+    chart.canvas.parentNode.style.display = 'flex';
 }
 
+let chart;
+
 export function newChart() {
-    const chart = new Chart(
+    chart = new Chart(
         document.getElementById('donutchart'),
         config
     )
     return chart
 };
-
 
 
 let isMouseDown = false;
