@@ -12,7 +12,20 @@
  * Released under the MIT License
  */
 
+/*!
+ * mapbox-gl-rain-layer v0.5.0
+ * https://nagix.github.io/mapbox-gl-rain-layer
+ * (c) 2022 Akihiko Kusanagi
+ * Released under the MIT license
+ */
+
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
+
+/**
+ * @license
+ * Copyright 2010-2022 Three.js Authors
+ * SPDX-License-Identifier: MIT
+ */
 
 /**
  * @license

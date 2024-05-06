@@ -1,58 +1,49 @@
 {
-"type": "FeatureCollection",
-"features": [
-    
-{"type": "Feature",
-    "geometry": {
-        "type": "Point",
-        "coordinates": [
-            -90.54232,
-            41.595583001
-        ]
-    },
-    "properties": {
-        "id": "A31771_201901091454.jpg",
-        "class": {
-            "Undefined": 0.0344571173,
-            "Bare": 0.735193312,
-            "Full": 0.229589894,
-            "Partly": 0.000759688031
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-90.54232, 41.595583001]
+            },
+            "properties": {
+                "id": "A31771_201901091454.jpg",
+                "class": {
+                    "Undefined": 0.0344571173,
+                    "Bare": 0.735193312,
+                    "Full": 0.229589894,
+                    "Partly": 0.000759688031
+                },
+                "url": "https://mesonet.agron.iastate.edu/archive/data/2019/01/09/camera/idot_trucks/A31771/A31771_201901091454.jpg",
+                "timestamp": 1547045640
+            }
         },
-        "url": "https://mesonet.agron.iastate.edu/archive/data/2019/01/09/camera/idot_trucks/A31771/A31771_201901091454.jpg",
-        "timestamp": 1547045640
-    }
-},
-
-{"type": "Feature",
-    "geometry": {
-        "type": "Point",
-        "coordinates": [
-            -93.659743,
-            41.650268001
-        ]
-    },
-    "properties": {
-        "id": "A33534_201901091454.jpg",
-        "class": {
-            "Undefined": 3.92898336e-9,
-            "Bare": 0.99999994,
-            "Full": 7.93756133e-14,
-            "Partly": 8.99016583e-10
-        },
-        "url": "https://mesonet.agron.iastate.edu/archive/data/2019/01/09/camera/idot_trucks/A33534/A33534_201901091454.jpg",
-        "timestamp": 1547045640
-    }
-},
-
 
         {
             "type": "Feature",
             "geometry": {
                 "type": "Point",
-                "coordinates": [
-                    -90.55065,
-                    41.594882001
-                ]
+                "coordinates": [-93.659743, 41.650268001]
+            },
+            "properties": {
+                "id": "A33534_201901091454.jpg",
+                "class": {
+                    "Undefined": 3.92898336e-9,
+                    "Bare": 0.99999994,
+                    "Full": 7.93756133e-14,
+                    "Partly": 8.99016583e-10
+                },
+                "url": "https://mesonet.agron.iastate.edu/archive/data/2019/01/09/camera/idot_trucks/A33534/A33534_201901091454.jpg",
+                "timestamp": 1547045640
+            }
+        },
+
+        {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [-90.55065, 41.594882001]
             },
             "properties": {
                 "id": "A33289_201901091455.jpg",
@@ -70,10 +61,7 @@
             "type": "Feature",
             "geometry": {
                 "type": "Point",
-                "coordinates": [
-                    -93.637923,
-                    41.649623001
-                ]
+                "coordinates": [-93.637923, 41.649623001]
             },
             "properties": {
                 "id": "A33687_201901091455.jpg",
@@ -91,10 +79,7 @@
             "type": "Feature",
             "geometry": {
                 "type": "Point",
-                "coordinates": [
-                    -93.649757,
-                    41.649855001
-                ]
+                "coordinates": [-93.649757, 41.649855001]
             },
             "properties": {
                 "id": "A34002_201901091456.jpg",
@@ -112,10 +97,7 @@
             "type": "Feature",
             "geometry": {
                 "type": "Point",
-                "coordinates": [
-                    -90.533988,
-                    41.595947001
-                ]
+                "coordinates": [-90.533988, 41.595947001]
             },
             "properties": {
                 "id": "A31771_201901091459.jpg",
@@ -133,10 +115,7 @@
             "type": "Feature",
             "geometry": {
                 "type": "Point",
-                "coordinates": [
-                    -93.729773,
-                    41.652473001
-                ]
+                "coordinates": [-93.729773, 41.652473001]
             },
             "properties": {
                 "id": "A33687_201901091500.jpg",
@@ -154,10 +133,7 @@
             "type": "Feature",
             "geometry": {
                 "type": "Point",
-                "coordinates": [
-                    -90.533088,
-                    41.595938001
-                ]
+                "coordinates": [-90.533088, 41.595938001]
             },
             "properties": {
                 "id": "A34391_201901091503.jpg",
