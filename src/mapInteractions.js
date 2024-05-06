@@ -1,19 +1,29 @@
-import mapboxgl from 'mapbox-gl';
-import { scrollToBottom } from './webInteractions';
-import { addData, removeData, newChart } from './charts.js';
+import mapboxgl from "mapbox-gl";
+import { scrollToBottom } from "./webInteractions";
+import { addData, removeData, newChart } from "./charts.js";
+import RainLayer from "mapbox-gl-rain-layer";
 
-mapboxgl.accessToken = 'pk.eyJ1IjoidXJiaXp0b24iLCJhIjoiY2xsZTZvaXd0MGc4MjNzbmdseWNjM213eiJ9.z1YeFXYSbaMe93SMT6muVg';
+mapboxgl.accessToken =
+    "pk.eyJ1IjoidXJiaXp0b24iLCJhIjoiY2xsZTZvaXd0MGc4MjNzbmdseWNjM213eiJ9.z1YeFXYSbaMe93SMT6muVg";
 export const map = new mapboxgl.Map({
-    container: 'map', 
-    style: 'mapbox://styles/urbizton/clve9aeu900c501rd7qcn14q6', // Default Dark
+    container: "map",
+    style: "mapbox://styles/urbizton/clve9aeu900c501rd7qcn14q6", // Default Dark
 
     center: [-94.53, 41.99],
     zoom: 6.4,
     maxZoom: 14,
 });
-map.addControl(new mapboxgl.NavigationControl({visualizePitch: true}),'bottom-right');
-map.addControl(new mapboxgl.ScaleControl({maxWidth: 300, unit: 'imperial'})); // see if i can modify positioning later
-
+map.addControl(
+    new mapboxgl.NavigationControl({ visualizePitch: true }),
+    "bottom-right",
+);
+map.addControl(new mapboxgl.ScaleControl({ maxWidth: 300, unit: "imperial" })); // see if i can modify positioning later
+map.addControl(
+    new mapboxgl.FullscreenControl({
+        container: document.querySelector("body"),
+    }),
+    "bottom-right",
+);
 
 // When user clicks home, pans back to iowa
 function panToIowa() {
@@ -21,13 +31,15 @@ function panToIowa() {
         center: [-94.53, 41.99],
         zoom: 6.7,
         pitch: 0,
-        bearing: 0
+        bearing: 0,
     });
 }
-document.getElementById('center-iowa').addEventListener('click', function(event) {
-    event.preventDefault();
-    panToIowa();
-});
+document
+    .getElementById("center-iowa")
+    .addEventListener("click", function (event) {
+        event.preventDefault();
+        panToIowa();
+    });
 
 function panToAverage(coordinates) {
     let sumLong = 0;
@@ -40,26 +52,26 @@ function panToAverage(coordinates) {
 
     // Calculate the average longitude and latitude
     const avgLongitude = sumLong / coordinates.length;
-    const avgLatitude = sumLat/ coordinates.length;
+    const avgLatitude = sumLat / coordinates.length;
 
     // Return the average longitude and latitude as an array
     map.flyTo({
         center: [avgLongitude, avgLatitude],
         zoom: 6.5,
         pitch: 0,
-        bearing: 0
+        bearing: 0,
     });
-};
+}
 
 let changedState = false;
 let currentGeoJSON;
 // Initial state of map, also ensures points stay the same when style changes
-map.on('style.load', () => {
-    map.resize()
-    console.log('Map resized')
+map.on("style.load", () => {
+    map.resize();
+    console.log("Map resized");
     if (!changedState) {
         // addPointLayer('./assets/Air_Facilities.geojson')
-        updateMapData(currentGeoJSON)
+        updateMapData(currentGeoJSON);
     }
     if (changedState) {
         updateMapData(currentGeoJSON);
@@ -69,7 +81,7 @@ map.on('style.load', () => {
 // Obtain list of all coordinates from geoJSON
 function extractCoordinatesFromGeoJSON(geoJSON) {
     if (geoJSON.type === "FeatureCollection") {
-        return geoJSON.features.map(feature => feature.geometry.coordinates);
+        return geoJSON.features.map((feature) => feature.geometry.coordinates);
     } else if (geoJSON.type === "Feature") {
         return [geoJSON.geometry.coordinates];
     } else {
@@ -79,11 +91,11 @@ function extractCoordinatesFromGeoJSON(geoJSON) {
 
 // Handle update of map data
 export function updateMapData(newGeoJSON) {
-    if (map.getLayer('latestLayer')) {
-        map.removeLayer('latestLayer');
+    if (map.getLayer("latestLayer")) {
+        map.removeLayer("latestLayer");
     }
-    if (map.getSource('latestSource')) {
-        map.removeSource('latestSource');
+    if (map.getSource("latestSource")) {
+        map.removeSource("latestSource");
     }
     addPointLayer(newGeoJSON);
     changedState = true;
@@ -93,67 +105,71 @@ export function updateMapData(newGeoJSON) {
 
 // Customize visualization/interactivity of geoJSON data here
 function addPointLayer(geojsonSource) {
-    map.addSource('latestSource', {
-        type: 'geojson',
+    map.addSource("latestSource", {
+        type: "geojson",
         data: geojsonSource,
-        generateId: true // Ensure that each feature has a unique ID at the PROPERTY level
+        generateId: true, // Ensure that each feature has a unique ID at the PROPERTY level
     });
 
     map.addLayer({
-        'id': 'latestLayer',
-        'type': 'circle',
-        'source': 'latestSource',
-        'paint': {
-            'circle-color': [
-                'match',
-                ['get', 'classification'],
-                'Undefined', '#FFAA00',
-                'Bare', '#000000',
-                'Partly', '#909090',
-                'Full', '#FFFFFF',
-                '#FFFFFF'
+        id: "latestLayer",
+        type: "circle",
+        source: "latestSource",
+        paint: {
+            "circle-color": [
+                "match",
+                ["get", "classification"],
+                "Undefined",
+                "#FFAA00",
+                "Bare",
+                "#000000",
+                "Partly",
+                "#909090",
+                "Full",
+                "#FFFFFF",
+                "#FFFFFF",
             ],
-            'circle-radius': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
+            "circle-radius": [
+                "case",
+                ["boolean", ["feature-state", "hover"], false],
                 9, // Larger when true
-                5
+                5,
             ],
-            'circle-stroke-width': [
-                'case',
-                ['boolean', ['feature-state', 'hover'], false],
+            "circle-stroke-width": [
+                "case",
+                ["boolean", ["feature-state", "hover"], false],
                 2,
-                0.5
+                0.5,
             ],
-            'circle-stroke-color': 'white',
-            'circle-sort-key': 'timestamp'
-        }
+            "circle-stroke-color": "white",
+            "circle-sort-key": "timestamp",
+        },
     });
 }
 
 // Handle map style change
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     const radios = document.querySelectorAll('.map-styles input[type="radio"]');
-    
-    radios.forEach(radio => {
-      radio.addEventListener("click", function() {
-        if (this.checked) {
-          const mapStyle = this.value;
-          setMapStyle(mapStyle);
-        }
-      });
+
+    radios.forEach((radio) => {
+        radio.addEventListener("click", function () {
+            if (this.checked) {
+                const mapStyle = this.value;
+                setMapStyle(mapStyle);
+            }
+        });
     });
-  
+
     function setMapStyle(style) {
-        map.setStyle('mapbox://styles/urbizton/' + style);
-      console.log("Map style set to:", style);
+        map.setStyle("mapbox://styles/urbizton/" + style);
+        console.log("Map style set to:", style);
     }
 });
 
-const idDisplay = document.getElementById('pointID');
-const timeDisplay = document.getElementById('pointTimestamp');
-const imageDisplay = document.getElementById('pointImage');
-const chart = newChart()
+const idDisplay = document.getElementById("pointID");
+const timeDisplay = document.getElementById("pointTimestamp");
+const imageDisplay = document.getElementById("pointImage");
+const chart = newChart();
 
 let pointID = null;
 let uniqueID = null;
@@ -161,22 +177,22 @@ let clickedPoint = false;
 let clickedPointValues = {};
 
 // General point interactivity
-map.on('mouseleave', 'latestLayer', () => {
-    map.getCanvas().style.cursor ='default'
+map.on("mouseleave", "latestLayer", () => {
+    map.getCanvas().style.cursor = "default";
 
     // console.log(` ${clickedPointValues} hovered: ${uniqueID}`);
     if (uniqueID) {
         map.setFeatureState(
-            { source: 'latestSource', id: uniqueID },
-            { hover: false }
+            { source: "latestSource", id: uniqueID },
+            { hover: false },
         );
     }
 
     // console.log(clickedPoint);
     if (!clickedPoint) {
-        idDisplay.textContent = '';
-        timeDisplay.textContent = '';
-        imageDisplay.src = '';
+        idDisplay.textContent = "";
+        timeDisplay.textContent = "";
+        imageDisplay.src = "";
         removeData(chart);
     } else if (clickedPoint) {
         idDisplay.textContent = clickedPointValues.avlID;
@@ -185,22 +201,24 @@ map.on('mouseleave', 'latestLayer', () => {
         removeData(chart);
         addData(chart, clickedPointValues.classes);
         map.setFeatureState(
-            { source: 'latestSource', id: clickedPointValues.specificID },
-            { hover: true }
+            { source: "latestSource", id: clickedPointValues.specificID },
+            { hover: true },
         );
     }
-})
+});
 
-map.on('click', 'latestLayer', (event) => {
-    const features = map.queryRenderedFeatures(event.point, { layers: ['latestLayer']});
+map.on("click", "latestLayer", (event) => {
+    const features = map.queryRenderedFeatures(event.point, {
+        layers: ["latestLayer"],
+    });
     let coordinate = features[0].geometry.coordinates;
     scrollToBottom();
 
     if (clickedPoint) {
         map.setFeatureState(
-            { source: 'latestSource', id: clickedPointValues.specificID },
-            { hover: false }
-        )
+            { source: "latestSource", id: clickedPointValues.specificID },
+            { hover: false },
+        );
     }
 
     map.flyTo({
@@ -208,20 +226,20 @@ map.on('click', 'latestLayer', (event) => {
         // pitch: 0,
         // bearing: 0,
         duration: 600,
-    })
-    
+    });
+
     clickedPoint = true;
 
     // Define how values are interpreted
-    let eventProperties = event.features[0].properties
+    let eventProperties = event.features[0].properties;
 
     clickedPointValues = {
-        specificID: event.features[0]['id'], 
-        avlID: eventProperties.id, 
+        specificID: event.features[0]["id"],
+        avlID: eventProperties.id,
         timestamp: timestampToISOString(eventProperties.timestamp),
         classification: eventProperties.classification,
         classes: eventProperties.class,
-        image: eventProperties.url
+        image: eventProperties.url,
     };
 
     idDisplay.textContent = clickedPointValues.avlID;
@@ -229,29 +247,54 @@ map.on('click', 'latestLayer', (event) => {
     imageDisplay.src = clickedPointValues.image;
     removeData(chart);
     addData(chart, clickedPointValues.classes);
-})
-
+});
 
 function timestampToISOString(timestamp) {
     var date = new Date(timestamp * 1000);
-    var monthNames = ["January", "February", "March", "April", "May", "June",
-                      "July", "August", "September", "October", "November", "December"];
+    var monthNames = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+    ];
     var month = monthNames[date.getMonth()];
-    var day = ('0' + date.getDate()).slice(-2);
+    var day = ("0" + date.getDate()).slice(-2);
     var year = date.getFullYear();
     var hours = date.getHours();
-    var ampm = hours >= 12 ? 'PM' : 'AM';
+    var ampm = hours >= 12 ? "PM" : "AM";
     hours = hours % 12;
     hours = hours ? hours : 12; // Handle midnight (0 hours)
-    var minutes = ('0' + date.getMinutes()).slice(-2);
-    
-    return month + ' ' + day + ', ' + year + ' - ' + hours + ':' + minutes + ' ' + ampm;
+    var minutes = ("0" + date.getMinutes()).slice(-2);
+
+    return (
+        month +
+        " " +
+        day +
+        ", " +
+        year +
+        " - " +
+        hours +
+        ":" +
+        minutes +
+        " " +
+        ampm
+    );
 }
 // Remove this function if not working properly
-map.on('mousemove', 'latestLayer', (event) => {
-    map.getCanvas().style.cursor = 'pointer';
+map.on("mousemove", "latestLayer", (event) => {
+    map.getCanvas().style.cursor = "pointer";
 
-    const features = map.queryRenderedFeatures(event.point, { layers: ['latestLayer'] });
+    const features = map.queryRenderedFeatures(event.point, {
+        layers: ["latestLayer"],
+    });
 
     // Check if any features are hovered
     if (features.length > 0) {
@@ -263,15 +306,15 @@ map.on('mousemove', 'latestLayer', (event) => {
             // Clear feature state for the previously hovered feature
             if (uniqueID) {
                 map.setFeatureState(
-                    { source: 'latestSource', id: uniqueID },
-                    { hover: false }
+                    { source: "latestSource", id: uniqueID },
+                    { hover: false },
                 );
             }
 
             // Update feature state for the newly hovered feature
             map.setFeatureState(
-                { source: 'latestSource', id: hoveredFeatureId },
-                { hover: true }
+                { source: "latestSource", id: hoveredFeatureId },
+                { hover: true },
             );
 
             // Update uniqueID to the newly hovered feature's id
@@ -279,41 +322,40 @@ map.on('mousemove', 'latestLayer', (event) => {
 
             // Update UI with the hovered feature's information
             idDisplay.textContent = hoveredFeature.properties.id;
-            timeDisplay.textContent = timestampToISOString(hoveredFeature.properties.timestamp);
+            timeDisplay.textContent = timestampToISOString(
+                hoveredFeature.properties.timestamp,
+            );
             imageDisplay.src = hoveredFeature.properties.url;
             removeData(chart);
             addData(chart, hoveredFeature.properties.class);
         }
     } else {
         // If no features are hovered, reset cursor, clear UI, and clear feature state
-        map.getCanvas().style.cursor = 'default';
-        idDisplay.textContent = '';
-        timeDisplay.textContent = '';
-        imageDisplay.src = '';
+        map.getCanvas().style.cursor = "default";
+        idDisplay.textContent = "";
+        timeDisplay.textContent = "";
+        imageDisplay.src = "";
         removeData(chart);
 
         if (uniqueID !== null) {
             map.setFeatureState(
-                { source: 'latestSource', id: uniqueID },
-                { hover: false }
+                { source: "latestSource", id: uniqueID },
+                { hover: false },
             );
             uniqueID = null;
         }
     }
 });
 
-
-
 // Function to shift/zoom the map view based on changes in container width (thank you chatgpt)
 function shiftMapView() {
     const currentCenter = map.getCenter();
     let currentZoom = map.getZoom();
 
-    const containerWidth = document.getElementById('console').offsetWidth;
+    const containerWidth = document.getElementById("console").offsetWidth;
 
     // Check if the container width has changed
     if (containerWidth !== prevContainerWidth) {
-
         const widthChange = containerWidth - prevContainerWidth;
 
         // Calculate the relative change in container width
@@ -326,14 +368,14 @@ function shiftMapView() {
         const currentScreenPoint = map.project(currentCenter);
 
         // Calculate new screen coordinates based on the change in container width
-        const newScreenX = currentScreenPoint.x - widthChange*0.7;
+        const newScreenX = currentScreenPoint.x - widthChange * 0.7;
         const newScreenY = currentScreenPoint.y;
 
         // Unproject new screen coordinates back to geographical coordinates
         const newCenter = map.unproject([newScreenX, newScreenY]);
 
         map.setCenter(newCenter);
-        map.setZoom(currentZoom)
+        map.setZoom(currentZoom);
         prevContainerWidth = containerWidth;
     }
 }
@@ -341,20 +383,61 @@ function shiftMapView() {
 // Wait till elements are loaded before recording container width
 let prevContainerWidth;
 setTimeout(() => {
-    prevContainerWidth = document.getElementById('console').offsetWidth;
+    prevContainerWidth = document.getElementById("console").offsetWidth;
 }, 1000);
 
 let isMouseDown = false;
-window.addEventListener('mousedown', (event) => {
-    if (event.target.id === 'console') {
+window.addEventListener("mousedown", (event) => {
+    if (event.target.id === "console") {
         isMouseDown = true;
     }
 });
-window.addEventListener('mousemove', () => {
+window.addEventListener("mousemove", () => {
     if (isMouseDown) {
         shiftMapView();
     }
 });
-window.addEventListener('mouseup', () => {
+window.addEventListener("mouseup", () => {
     isMouseDown = false;
+});
+
+// Handle specific realtime functionalities:
+function convertUnixTimestamp(unixTimestamp) {
+    return new Date(unixTimestamp * 1000).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+    });
+}
+
+// Handle realtime toggle
+const realtimeToggle = document.querySelector("#realtime-toggle");
+realtimeToggle.addEventListener("change", (e) => {
+    if (e.target.checked) {
+        // Init GL JS Rain Layer
+        const rainLayer = new RainLayer({
+            id: "rain",
+            source: "rainviewer",
+            meshOpacity: 0,
+            rainColor: "hsla(213, 76%, 73%, 0.86)",
+            snowColor: "hsla(0, 0%, 100%, 1)",
+            scale: "noaa",
+        });
+        map.addLayer(rainLayer);
+
+        rainLayer.on("refresh", (data) => {
+            console.log(
+                `Last Weather Update: ${convertUnixTimestamp(data.timestamp)}`,
+            );
+        });
+
+        // remove existing geoJSON source
+        map.removeLayer("latestLayer");
+        map.removeSource("latestSource");
+        // TODO: Add realtime source and logic
+
+        // console.log('checked')
+    } else {
+        // console.log('unchecked')
+        map.removeLayer("rain");
+    }
 });
