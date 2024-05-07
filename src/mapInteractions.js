@@ -54,13 +54,21 @@ function panToAverage(coordinates) {
   const avgLongitude = sumLong / coordinates.length;
   const avgLatitude = sumLat / coordinates.length;
 
+  // could convert to function
+  var arrowImg = document.getElementById("arrow-img");
+  const flipped = !arrowImg.classList.contains("flipped");
+  const padding = {};
+  let currentWidth = document.getElementById("console").clientWidth - 200;
+  padding["left"] = flipped ? 0 : currentWidth;
+  console.log(currentWidth);
+
   // Return the average longitude and latitude as an array
-  map.flyTo({
-    // padding: { right: 300 }, // Add padding logic here
+  map.easeTo({
+    padding: padding, // Add padding logic here
     center: [avgLongitude, avgLatitude],
     zoom: 6.5,
-    pitch: 0,
-    bearing: 0,
+    // pitch: 0,
+    // bearing: 0,
   });
 }
 
@@ -222,8 +230,16 @@ map.on("click", "latestLayer", (event) => {
     );
   }
 
-  map.flyTo({
+  var arrowImg = document.getElementById("arrow-img");
+  const flipped = !arrowImg.classList.contains("flipped");
+  const padding = {};
+  let currentWidth = document.getElementById("console").clientWidth - 200;
+  padding["left"] = flipped ? 0 : currentWidth;
+  console.log(padding);
+
+  map.easeTo({
     center: coordinate,
+    padding: padding,
     // pitch: 0,
     // bearing: 0,
     duration: 600,
