@@ -67,8 +67,6 @@ function panToAverage(coordinates) {
     padding: padding, // Add padding logic here
     center: [avgLongitude, avgLatitude],
     zoom: 6.5,
-    // pitch: 0,
-    // bearing: 0,
   });
 }
 
@@ -79,7 +77,6 @@ map.on("style.load", () => {
   map.resize();
   console.log("Map resized");
   if (!changedState) {
-    // addPointLayer('./assets/Air_Facilities.geojson')
     updateMapData(currentGeoJSON);
   }
   if (changedState) {
