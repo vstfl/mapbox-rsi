@@ -266,11 +266,14 @@ map.on("mouseleave", "latestLayer", () => {
     idDisplay.textContent = "";
     timeDisplay.textContent = "";
     imageDisplay.src = "";
+    imageDisplay.parentNode.style.display = "none";
     removeData(chart);
   } else if (clickedPoint) {
     idDisplay.textContent = clickedPointValues.avlID;
     timeDisplay.textContent = clickedPointValues.timestamp;
     imageDisplay.src = clickedPointValues.image;
+    imageDisplay.parentNode.style.display = "block";
+
     removeData(chart);
     addData(chart, clickedPointValues.classes);
     map.setFeatureState(
@@ -326,6 +329,8 @@ map.on("click", "latestLayer", (event) => {
   idDisplay.textContent = clickedPointValues.avlID;
   timeDisplay.textContent = clickedPointValues.timestamp;
   imageDisplay.src = clickedPointValues.image;
+  imageDisplay.parentNode.style.display = "block";
+
   removeData(chart);
   addData(chart, clickedPointValues.classes);
 });
@@ -397,6 +402,8 @@ map.on("mousemove", "latestLayer", (event) => {
         hoveredFeature.properties.timestamp,
       );
       imageDisplay.src = hoveredFeature.properties.url;
+      imageDisplay.parentNode.style.display = "block";
+
       removeData(chart);
       addData(chart, hoveredFeature.properties.class);
     }
@@ -406,6 +413,8 @@ map.on("mousemove", "latestLayer", (event) => {
     idDisplay.textContent = "";
     timeDisplay.textContent = "";
     imageDisplay.src = "";
+    imageDisplay.parentNode.style.display = "none";
+
     removeData(chart);
 
     if (uniqueID !== null) {
@@ -520,8 +529,11 @@ map.on("idle", () => {
     !map.getLayer("latestLayer") ||
     !map.getLayer("latestInterpolationLayer")
   ) {
+    document.getElementById("menu").style.display = "none";
     return;
   }
+  document.getElementById("menu").style.display = "flex";
+
   // Enumerate ids of the layers.
   const toggleableLayerIds = ["latestLayer", "latestInterpolationLayer"];
 

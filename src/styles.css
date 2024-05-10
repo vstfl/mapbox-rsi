@@ -36,45 +36,46 @@ body {
 }
 
 #menu {
-  background: #fff;
-  position: absolute;
+  background: grey;
+  position: relative;
+  justify-content: center;
   z-index: 2000;
-  top: calc(60px + 5vh);
-  right: 10px;
-  border-radius: 3px;
-  width: 120px;
-  border: 1px solid rgba(0, 0, 0, 0.4);
-  font-family: "Open Sans", sans-serif;
+  border-radius: 7px;
+  border: none;
+  width: 100%;
+  height: 1.7rem;
+  margin: 10px 0;
 }
 
 #menu a {
-  font-size: 13px;
+  border-radius: 7px 0 0 7px;
   color: #404040;
-  display: block;
   margin: 0;
-  padding: 0;
-  padding: 10px;
+  padding: 0 10px;
   text-decoration: none;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+  border-right: 1px solid rgba(0, 0, 0, 0.25);
   text-align: center;
+  flex: 1 0 auto;
+  font-size: 1rem;
 }
 
 #menu a:last-child {
   border: none;
+  border-radius: 0px 7px 7px 0;
 }
 
 #menu a:hover {
-  background-color: #f8f8f8;
-  color: #404040;
+  background-color: rgb(172, 172, 172);
+  color: #ffffff;
 }
 
 #menu a.active {
-  background-color: #3887be;
+  background-color: #d6611e;
   color: #ffffff;
 }
 
 #menu a.active:hover {
-  background: #3074a4;
+  background: #c2581b;
 }
 
 .sign-in-container {
@@ -385,7 +386,7 @@ input[type="range"]:hover {
 #submit-query:hover {
   font-weight: bolder;
   cursor: pointer;
-  background-color: #2196f3;
+  background-color: #1e85da;
 }
 
 #submit-query {
@@ -510,7 +511,7 @@ input:checked + .slider:before {
   display: flex;
   flex-direction: column;
   height: 100%;
-  justify-content: space-evenly;
+  justify-content: flex-start;
 }
 
 #pointImage {
@@ -522,11 +523,11 @@ input:checked + .slider:before {
 
 .class-data {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   position: relative;
-  height: 125%;
-  max-height: 40vh;
+  height: auto;
+  min-height: 45vh;
   width: 100%;
 }
 
