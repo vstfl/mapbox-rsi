@@ -1,5 +1,11 @@
 import { queryImagesByDateRange } from "./firebaseHandler.js";
-import { updateMapData, panToAverage } from "./mapInteractions.js";
+import {
+  updateMapData,
+  updateInterpolation,
+  panToAverage,
+  currentGeoJSON,
+} from "./mapInteractions.js";
+import { interpolateGeoJSON } from "./interpolation.js";
 import { map } from "./mapInteractions.js";
 import * as geojson from "geojson";
 
@@ -57,25 +63,30 @@ document
   .getElementById("query-form")
   .addEventListener("submit", async function (event) {
     event.preventDefault(); // Prevent form submission
-    const btn = document.getElementById("submit-query");
     scrollToBottom();
 
-    btn.disabled = true;
-    btn.style.cursor = "not-allowed";
-    setTimeout(() => {
-      btn.disabled = false;
-      btn.style.cursor = "pointer";
-      console.log("Button Available");
-    }, 3000);
-
+    // If archived mode, get Calendar and Window
     if (!realtimeState) {
+      // Get the query data
       const formData = new FormData(this);
       const date = formData.get("calendar");
       const window = formData.get("window");
 
-      console.log("Date:", date);
-      console.log("Window:", window);
+      // Disables button temporarily (prevents spamming for requests)
+      const btn = document.getElementById("submit-query");
 
+      btn.disabled = true;
+      btn.style.cursor = "not-allowed";
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.style.cursor = "pointer";
+        console.log("Button Available");
+      }, 160 * window); // Scale button cooldown depending on size of window
+
+      // console.log("Date:", date);
+      // console.log("Window:", window);
+
+      // Perform the query to Firestore
       const [startTimestamp, endTimestamp] = calculateDataRange(date, window);
       const imageQuery = await queryImagesByDateRange(
         startTimestamp,
@@ -83,10 +94,29 @@ document
       );
       const newGeoJSON = convertToGeoJSON(imageQuery);
 
-      const geojsonString = JSON.stringify(newGeoJSON, null, 2);
+      // const geojsonString = JSON.stringify(newGeoJSON, null, 2); // For debugging purposes
       // console.log(geojsonString);
       updateMapData(newGeoJSON);
+
+      // If interpolation tool is on, interpolate the data
+      if (interpolationState) {
+        currentInterpolatedGeoJSON = await interpolateGeoJSON(currentGeoJSON);
+        updateInterpolation(currentInterpolatedGeoJSON);
+      }
     }
+  });
+
+// Handle Geostatistical Interpolation (RSI) Trigger
+let interpolationState = false;
+let currentInterpolatedGeoJSON;
+document
+  .getElementById("interpolation")
+  .addEventListener("click", async (event) => {
+    event.preventDefault(); // Prevent default anchor behavior
+
+    currentInterpolatedGeoJSON = await interpolateGeoJSON(currentGeoJSON);
+    updateInterpolation(currentInterpolatedGeoJSON);
+    interpolationState = true;
   });
 
 // Logic to update website every minute if in realtime mode

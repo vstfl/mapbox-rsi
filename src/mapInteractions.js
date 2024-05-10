@@ -3,6 +3,18 @@ import { scrollToBottom } from "./webInteractions";
 import { addData, removeData, newChart } from "./charts.js";
 import RainLayer from "mapbox-gl-rain-layer";
 
+/**
+ * Handle's the majority of relevant map interactions for the user.
+ *
+ * This includes (in this order):
+ * - Map Initialization
+ * - Map Functions (Panning to points)
+ * - Map Styling/Sourcing (Style updates, Layer/GeoJSON source updates)
+ * - Point Interactivity (Point Hover, Point Click)
+ * - UI Updates (Triggered by a map interaction, Chart updates, point information)
+ * - Miscellaneous Map Updates (Real-time views (i.e. rain, new data sources [to-do]))
+ */
+
 mapboxgl.accessToken =
   "pk.eyJ1IjoidXJiaXp0b24iLCJhIjoiY2xsZTZvaXd0MGc4MjNzbmdseWNjM213eiJ9.z1YeFXYSbaMe93SMT6muVg";
 export const map = new mapboxgl.Map({
@@ -70,18 +82,14 @@ function panToAverage(coordinates) {
   });
 }
 
-let changedState = false;
-let currentGeoJSON;
+export let currentGeoJSON; // Ensure variable is availabe in global scope
+export let currentInterpolation;
 // Initial state of map, also ensures points stay the same when style changes
 map.on("style.load", () => {
   map.resize();
   console.log("Map resized");
-  if (!changedState) {
-    updateMapData(currentGeoJSON);
-  }
-  if (changedState) {
-    updateMapData(currentGeoJSON);
-  }
+  updateMapData(currentGeoJSON);
+  updateInterpolation(currentInterpolation);
 });
 
 // Obtain list of all coordinates from geoJSON
@@ -103,10 +111,66 @@ export function updateMapData(newGeoJSON) {
   if (map.getSource("latestSource")) {
     map.removeSource("latestSource");
   }
+  console.log(newGeoJSON);
   addPointLayer(newGeoJSON);
-  changedState = true;
   currentGeoJSON = newGeoJSON;
   panToAverage(extractCoordinatesFromGeoJSON(currentGeoJSON));
+}
+
+// Same as above but specifically for interpolation data
+export function updateInterpolation(interpolationGeoJSON) {
+  if (map.getLayer("latestInterpolationLayer")) {
+    map.removeLayer("latestInterpolationLayer");
+  }
+  if (map.getSource("latestInterpolation")) {
+    map.removeSource("latestInterpolation");
+  }
+  addInterpolationLayer(interpolationGeoJSON);
+  // console.log(interpolationGeoJSON);
+  currentInterpolation = interpolationGeoJSON;
+}
+
+// Customize visualization/interactivity of geoJSON data here
+function addInterpolationLayer(interpolationGeoJSON) {
+  map.addSource("latestInterpolation", {
+    type: "geojson",
+    data: interpolationGeoJSON,
+    generateId: true, // Ensure that each feature has a unique ID at the PROPERTY level
+    tolerance: 0,
+  });
+
+  map.addLayer(
+    {
+      id: "latestInterpolationLayer",
+      type: "line",
+      source: "latestInterpolation",
+      layout: {
+        visibility: "visible",
+      },
+      paint: {
+        "line-color": [
+          "match",
+          ["get", "classification"],
+          "Undefined",
+          "#FFAA00",
+          "Bare",
+          "#000000",
+          "Partly",
+          "#909090",
+          "Full",
+          "#FFFFFF",
+          "#FFFFFF",
+        ],
+        "line-width": [
+          "case",
+          ["boolean", ["feature-state", "hover"], false],
+          6, // Larger when true
+          3,
+        ],
+      },
+    },
+    "latestLayer",
+  );
 }
 
 // Customize visualization/interactivity of geoJSON data here
@@ -121,6 +185,9 @@ function addPointLayer(geojsonSource) {
     id: "latestLayer",
     type: "circle",
     source: "latestSource",
+    layout: {
+      visibility: "visible",
+    },
     paint: {
       "circle-color": [
         "match",
@@ -148,7 +215,7 @@ function addPointLayer(geojsonSource) {
         0.5,
       ],
       "circle-stroke-color": "white",
-      "circle-sort-key": "timestamp",
+      // "circle-sort-key": ["to-number", "timestamp"],
     },
   });
 }
@@ -443,5 +510,58 @@ realtimeToggle.addEventListener("change", (e) => {
   } else {
     // console.log('unchecked')
     map.removeLayer("rain");
+  }
+});
+
+// Handle toggling of layers
+map.on("idle", () => {
+  // If these two layers were not added to the map, abort
+  if (
+    !map.getLayer("latestLayer") ||
+    !map.getLayer("latestInterpolationLayer")
+  ) {
+    return;
+  }
+  // Enumerate ids of the layers.
+  const toggleableLayerIds = ["latestLayer", "latestInterpolationLayer"];
+
+  // Set up the corresponding toggle button for each layer.
+  for (const id of toggleableLayerIds) {
+    // Skip layers that already have a button set up.
+    if (document.getElementById(id)) {
+      continue;
+    }
+
+    // Create a link.
+    const link = document.createElement("a");
+    link.id = id;
+    link.href = "#";
+    let text;
+    if (id == "latestLayer") {
+      text = "Actual";
+    } else {
+      text = "Interpolated";
+    }
+    link.textContent = text;
+    link.className = "active";
+
+    // Show or hide layer when the toggle is clicked.
+    link.onclick = function (e) {
+      const clickedLayer = id;
+      e.preventDefault();
+      e.stopPropagation();
+      const visibility = map.getLayoutProperty(clickedLayer, "visibility");
+      // Toggle layer visibility by changing the layout object's visibility property.
+      if (visibility === "visible") {
+        map.setLayoutProperty(clickedLayer, "visibility", "none");
+        this.className = "";
+      } else {
+        this.className = "active";
+        map.setLayoutProperty(clickedLayer, "visibility", "visible");
+      }
+    };
+
+    const layers = document.getElementById("menu");
+    layers.appendChild(link);
   }
 });
