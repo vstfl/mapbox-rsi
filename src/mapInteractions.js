@@ -23,13 +23,13 @@ export const map = new mapboxgl.Map({
 
   center: [-94.53, 41.99],
   zoom: 6.4,
-  maxZoom: 14,
+  maxZoom: 18,
 });
 map.addControl(
   new mapboxgl.NavigationControl({ visualizePitch: true }),
   "bottom-right",
 );
-map.addControl(new mapboxgl.ScaleControl({ maxWidth: 300, unit: "imperial" })); // see if i can modify positioning later
+map.addControl(new mapboxgl.ScaleControl({ maxWidth: 300, unit: "imperial" }));
 map.addControl(
   new mapboxgl.FullscreenControl({
     container: document.querySelector("body"),
@@ -76,7 +76,7 @@ function panToAverage(coordinates) {
 
   // Return the average longitude and latitude as an array
   map.easeTo({
-    padding: padding, // Add padding logic here
+    padding: padding,
     center: [avgLongitude, avgLatitude],
     zoom: 6.5,
   });
