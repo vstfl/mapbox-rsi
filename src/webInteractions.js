@@ -5,7 +5,10 @@ import {
   panToAverage,
   currentGeoJSON,
 } from "./mapInteractions.js";
-import { interpolateGeoJSON } from "./interpolation.js";
+import {
+  interpolateGeoJSON,
+  interpolateGeoJSONLanes,
+} from "./interpolation.js";
 import { map } from "./mapInteractions.js";
 import * as geojson from "geojson";
 
@@ -100,7 +103,10 @@ document
 
       // If interpolation tool is on, interpolate the data
       if (interpolationState) {
-        currentInterpolatedGeoJSON = await interpolateGeoJSON(currentGeoJSON);
+        // currentInterpolatedGeoJSON = await interpolateGeoJSON(currentGeoJSON);
+        currentInterpolatedGeoJSON =
+          await interpolateGeoJSONLanes(currentGeoJSON);
+
         updateInterpolation(currentInterpolatedGeoJSON);
       }
     }
@@ -114,7 +120,8 @@ document
   .addEventListener("click", async (event) => {
     event.preventDefault(); // Prevent default anchor behavior
 
-    currentInterpolatedGeoJSON = await interpolateGeoJSON(currentGeoJSON);
+    // currentInterpolatedGeoJSON = await interpolateGeoJSON(currentGeoJSON);
+    currentInterpolatedGeoJSON = await interpolateGeoJSONLanes(currentGeoJSON);
     updateInterpolation(currentInterpolatedGeoJSON);
     interpolationState = true;
   });

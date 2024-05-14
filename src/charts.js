@@ -7,7 +7,8 @@ const data = {
     {
       label: " Deep Learning Prediction",
       data: [0.3, 0.5, 0.15, 0.05], // Undefined, Fully, Partly, Bare
-      backgroundColor: ["#FFAA00", "#FFFFFF", "#909090", "#000000"],
+      // backgroundColor: ["#FFAA00", "#FFFFFF", "#909090", "#000000"],
+      backgroundColor: ["#554f56", "#E51000", "#EFC44E", "#80B932"],
       hoverOffset: 4,
     },
   ],
