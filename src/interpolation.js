@@ -1,4 +1,6 @@
 import * as turf from "@turf/turf";
+import KDBush from "kdbush";
+import * as geokdbush from "geokdbush";
 
 async function loadSubdividedRoads(path) {
   try {
@@ -95,24 +97,21 @@ export async function interpolateGeoJSONLanes(currentGeoJSON) {
     "./assets/I35I80_Lanes_500ft.geojson",
   );
   let studyPoints = currentGeoJSON;
-  //
-
   // studyPoints = await findNearestLineSegmentsAsync(currentGeoJSON, studyRoads);
 
   studyPoints = findNearestLineSegmentsFast(currentGeoJSON, studyRoads);
 
-  console.log(studyPoints);
-  // TODO: Replace this code bit using spatial indexing, as it is too slow at the moment
-  // Iterate through all line segments finding closest (lane matching) classification point
-  assignClassificationToLineFeatures(studyRoads, studyPoints);
+  // console.log(studyPoints);
 
-  // TODO: Proposed spatially indexed method
-  // await assignNearestClassification(studyRoads, studyPoints);
+  const classifiedRoads = await assignNearestClassification(
+    studyRoads,
+    studyPoints,
+  );
 
   console.log("Interpolation complete.");
   fadeOutLoadingScreen();
-  console.log(studyRoads);
-  return studyRoads;
+  console.log(classifiedRoads);
+  return classifiedRoads;
 }
 
 // Linear search, way slower, easier to understand (not using in final ver)
@@ -215,43 +214,47 @@ async function assignClassificationToLineFeatures(studyRoads, studyPoints) {
   );
 }
 
-// Spatial index based method to assign classification to nearest points
+// Testing geokdbush again
 async function assignNearestClassification(studyRoads, studyPoints) {
-  // Build a spatial index for the point features
-  const index = new Map();
-  studyPoints.features.forEach((pointFeature) => {
-    index.set(pointFeature.id, pointFeature.geometry.coordinates);
-  });
+  console.log(studyPoints);
+  const index = new KDBush(studyPoints.features.length);
+}
 
-  await Promise.all(
-    studyRoads.features.map(async (lineFeature) => {
-      let nearestPointId;
-      let minDistance = Infinity;
+// Spatial index based method to assign classification to nearest points
+async function OLDassignNearestClassification(studyRoads, studyPoints) {
+  // Loop through each line feature in studyRoads
+  for (const lineFeature of studyRoads.features) {
+    let closestPoint = null;
+    let closestDistance = Infinity;
 
-      // Iterate over the point features to find the nearest point to the current line segment
-      for (const [pointId, pointCoords] of index.entries()) {
-        const nearest = turf.nearestPointOnLine(lineFeature, pointCoords);
-        const distance = nearest.properties.dist;
-        if (distance < minDistance) {
-          minDistance = distance;
-          nearestPointId = pointId;
+    // Loop through each point in studyPoints
+    for (const point of studyPoints.features) {
+      // Check if ROUTEID matches
+      if (lineFeature.properties.ROUTEID === point.properties.direction) {
+        console.log("match");
+        const distance = squaredEuclideanDistance(
+          lineFeature.geometry.coordinates["0"], // TODO: Remimplement using avg of coords rather than 1st coords
+          point.geometry.coordinates,
+        );
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestPoint = point;
         }
       }
+    }
+    // Assign classification if a matching closest point is found
+    if (closestPoint) {
+      lineFeature.properties.classification =
+        closestPoint.properties.classification;
+    }
+  }
 
-      // Get the nearest point feature
-      const nearestPoint = studyPoints.features.find(
-        (feature) => feature.id === nearestPointId,
-      );
+  return studyRoads; // Return the modified studyRoads GeoJSON
+}
 
-      // Check if nearest point matches the ROUTEID
-      if (
-        nearestPoint &&
-        lineFeature.properties.ROUTEID === nearestPoint.properties.direction
-      ) {
-        // Access the classification property of the nearest point and assign it to the line segment
-        lineFeature.properties.classification =
-          nearestPoint.properties.classification;
-      }
-    }),
-  );
+// Function to calculate squared Euclidean distance between two points
+function squaredEuclideanDistance(p1, p2) {
+  const dx = p1[0] - p2[0];
+  const dy = p1[1] - p2[1];
+  return dx * dx + dy * dy;
 }
