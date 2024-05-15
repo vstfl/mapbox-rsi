@@ -1,6 +1,6 @@
 import * as turf from "@turf/turf";
 import KDBush from "kdbush";
-import * as geokdbush from "geokdbush";
+import * as geokdbush from "geokdbush-tk";
 
 async function loadSubdividedRoads(path) {
   try {
@@ -84,7 +84,7 @@ export async function interpolateGeoJSON(currentGeoJSON) {
 
 // Perform interpolation on GeoJSON
 export async function interpolateGeoJSONLanes(currentGeoJSON) {
-  console.log("Interpolating using Lane method...");
+  console.log("Interpolating specific Lanes method...");
 
   if (!currentGeoJSON) {
     return;
@@ -99,18 +99,19 @@ export async function interpolateGeoJSONLanes(currentGeoJSON) {
   let studyPoints = currentGeoJSON;
   // studyPoints = await findNearestLineSegmentsAsync(currentGeoJSON, studyRoads);
 
-  studyPoints = findNearestLineSegmentsFast(currentGeoJSON, studyRoads);
+  studyPoints = findNearestLineSegmentsFaster(currentGeoJSON, studyRoads, 0.03); // 30m Search radius for closest lane
 
   // console.log(studyPoints);
 
   const classifiedRoads = await assignNearestClassification(
     studyRoads,
     studyPoints,
+    30, // Allowable search radius
   );
 
   console.log("Interpolation complete.");
   fadeOutLoadingScreen();
-  console.log(classifiedRoads);
+  // console.log(classifiedRoads);
   return classifiedRoads;
 }
 
@@ -137,124 +138,110 @@ async function findNearestLineSegmentsAsync(studyPoints, studyRoads) {
   return studyPoints;
 }
 
-// Spatially indexed search, much faster (instantaneous), harder to understand
-function findNearestLineSegmentsFast(studyPoints, studyRoads) {
-  // Define a function to calculate the squared Euclidean distance between two points
-  function squaredEuclideanDistance(p1, p2) {
-    const dx = p1[0] - p2[0];
-    const dy = p1[1] - p2[1];
-    return dx * dx + dy * dy;
+function findNearestLineSegmentsFaster(studyPoints, studyRoads, searchRadius) {
+  const index = new KDBush(studyRoads.features.length);
+
+  // Initialize indexing for all road segments
+  studyRoads.features.map((line) => {
+    const avgCoordinates = averageCoordinates(line.geometry.coordinates);
+    const lineID = index.add(avgCoordinates[0], avgCoordinates[1]);
+    line.properties.geoid = lineID;
+  });
+
+  index.finish();
+
+  // Iterate through all points
+  for (const pointFeature of studyPoints.features) {
+    // Generate sorted list of closest road segment to each point
+    const nearestIDs = geokdbush.around(
+      index,
+      pointFeature.geometry.coordinates[0],
+      pointFeature.geometry.coordinates[1],
+      50,
+      searchRadius,
+    );
+    // Check list of closest road segments, select only closest
+    for (const lineID of nearestIDs) {
+      const closestRoad = studyRoads.features.filter(
+        (line) => line.properties.geoid === lineID,
+      )[0];
+
+      if (closestRoad) {
+        pointFeature.properties.direction = closestRoad.properties.ROUTEID;
+        break;
+      }
+    }
   }
-
-  // Build a spatial index from the line features
-  const spatialIndex = {};
-  studyRoads.features.forEach((lineFeature) => {
-    const coords = lineFeature.geometry.coordinates;
-    coords.forEach((coord, idx) => {
-      const key = `${coord[0]},${coord[1]}`;
-      spatialIndex[key] = { coord, lineFeatureId: lineFeature.id, idx };
-    });
-  });
-
-  // Iterate over each point feature to find the nearest line segment
-  studyPoints.features.forEach((pointFeature) => {
-    let minDistance = Infinity;
-    let closestClassification = null;
-
-    // Find the nearest point on the line segments
-    studyRoads.features.forEach((lineFeature) => {
-      const coords = lineFeature.geometry.coordinates;
-      coords.forEach((coord, idx) => {
-        const distance = squaredEuclideanDistance(
-          coord,
-          pointFeature.geometry.coordinates,
-        );
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestClassification = lineFeature.properties.ROUTEID;
-        }
-      });
-    });
-
-    // Add the classification property of the closest line segment to the point
-    pointFeature.properties.direction = closestClassification;
-  });
-
   return studyPoints;
 }
 
-async function assignClassificationToLineFeatures(studyRoads, studyPoints) {
-  await Promise.all(
-    studyRoads.features.map(async (lineFeature) => {
-      let currentGeoJSONCopy = JSON.parse(JSON.stringify(studyPoints)); // Create a copy of the studyPoints
-      let nearest;
+// Use spatial indexing to find closest classification points
+// Docs: https://github.com/mourner/kdbush  and   https://www.npmjs.com/package/geokdbush-tk
+async function assignNearestClassification(
+  studyRoads,
+  studyPoints,
+  searchRadius,
+) {
+  // console.log(studyPoints);
+  // console.log(studyRoads);
 
-      while (!nearest && currentGeoJSONCopy.features.length > 0) {
-        nearest = turf.nearestPointToLine(currentGeoJSONCopy, lineFeature);
-
-        if (nearest) {
-          // Check if nearest point matches the ROUTEID
-          if (lineFeature.properties.ROUTEID === nearest.properties.direction) {
-            // Access the classification property of the nearest point and assign it to the line segment
-            lineFeature.properties.classification =
-              nearest.properties.classification;
-          } else {
-            // Remove the point from the currentGeoJSONCopy
-            currentGeoJSONCopy = {
-              type: "FeatureCollection",
-              features: currentGeoJSONCopy.features.filter(
-                (feature) => feature !== nearest,
-              ),
-            };
-            nearest = null; // Reset nearest to null to repeat the loop
-          }
-        }
-      }
-    }),
-  );
-}
-
-// Testing geokdbush again
-async function assignNearestClassification(studyRoads, studyPoints) {
-  console.log(studyPoints);
+  // Initialize KDBush indexing
   const index = new KDBush(studyPoints.features.length);
-}
 
-// Spatial index based method to assign classification to nearest points
-async function OLDassignNearestClassification(studyRoads, studyPoints) {
-  // Loop through each line feature in studyRoads
+  studyPoints.features.map((point) => {
+    const pointID = index.add(
+      point.geometry.coordinates[0],
+      point.geometry.coordinates[1],
+    );
+    point.properties.geoid = pointID;
+  });
+
+  index.finish();
+
+  // Loop through each feature in studyRoads
   for (const lineFeature of studyRoads.features) {
-    let closestPoint = null;
-    let closestDistance = Infinity;
+    const avgCoordinates = averageCoordinates(lineFeature.geometry.coordinates);
 
-    // Loop through each point in studyPoints
-    for (const point of studyPoints.features) {
-      // Check if ROUTEID matches
-      if (lineFeature.properties.ROUTEID === point.properties.direction) {
-        console.log("match");
-        const distance = squaredEuclideanDistance(
-          lineFeature.geometry.coordinates["0"], // TODO: Remimplement using avg of coords rather than 1st coords
-          point.geometry.coordinates,
-        );
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestPoint = point;
-        }
+    const nearestIDs = geokdbush.around(
+      // Generates sorted list of point IDs according to proximity to road seg
+      index,
+      avgCoordinates[0],
+      avgCoordinates[1],
+      50,
+      searchRadius,
+    );
+
+    // Check list of closest points, select only those with same direction, and closest only
+    for (const pointID of nearestIDs) {
+      const matchingPoint = studyPoints.features.filter(
+        (point) =>
+          point.properties.geoid === pointID &&
+          point.properties.direction === lineFeature.properties.ROUTEID,
+      )[0];
+
+      if (matchingPoint) {
+        // console.log("Match found for point", matchingPoint.properties.id);
+        lineFeature.properties.classification =
+          matchingPoint.properties.classification;
+        break;
       }
-    }
-    // Assign classification if a matching closest point is found
-    if (closestPoint) {
-      lineFeature.properties.classification =
-        closestPoint.properties.classification;
     }
   }
-
-  return studyRoads; // Return the modified studyRoads GeoJSON
+  return studyRoads;
 }
 
-// Function to calculate squared Euclidean distance between two points
-function squaredEuclideanDistance(p1, p2) {
-  const dx = p1[0] - p2[0];
-  const dy = p1[1] - p2[1];
-  return dx * dx + dy * dy;
+function averageCoordinates(coordinates) {
+  let totalLat = 0;
+  let totalLon = 0;
+  const numCoords = coordinates.length;
+
+  coordinates.forEach((coord) => {
+    totalLat += coord[1];
+    totalLon += coord[0];
+  });
+
+  const avgLat = totalLat / numCoords;
+  const avgLon = totalLon / numCoords;
+
+  return [avgLon, avgLat];
 }
