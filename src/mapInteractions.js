@@ -146,6 +146,21 @@ function addInterpolationLayer(interpolationGeoJSON) {
       source: "latestInterpolation",
       layout: {
         visibility: "visible",
+        "line-cap": "square",
+        "line-join": "round",
+        "line-sort-key": [
+          "match",
+          ["get", "classification"],
+          "Undefined",
+          0,
+          "Bare",
+          4,
+          "Partly",
+          3,
+          "Full",
+          2,
+          0,
+        ],
       },
       paint: {
         "line-color": [
@@ -161,12 +176,8 @@ function addInterpolationLayer(interpolationGeoJSON) {
           "#E51000",
           "#554f56",
         ],
-        "line-width": [
-          "case",
-          ["boolean", ["feature-state", "hover"], false],
-          6, // Larger when true
-          4,
-        ],
+        "line-width": 3,
+        "line-offset": 2,
       },
     },
     "latestLayer",

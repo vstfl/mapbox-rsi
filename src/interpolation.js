@@ -57,7 +57,6 @@ export async function interpolateGeoJSON(currentGeoJSON) {
 
   enableLoadingScreen();
 
-  // Load the subdivided study area dataset
   let studyRoads = await loadSubdividedRoads(
     "./assets/Iowa_Hwy_80_35_500ft.geojson",
   );
@@ -82,7 +81,7 @@ export async function interpolateGeoJSON(currentGeoJSON) {
   return studyRoads;
 }
 
-// Perform interpolation on GeoJSON
+// Perform interpolation on GeoJSON with Lane subdivision
 export async function interpolateGeoJSONLanes(currentGeoJSON) {
   console.log("Interpolating specific Lanes method...");
 
@@ -99,14 +98,14 @@ export async function interpolateGeoJSONLanes(currentGeoJSON) {
   let studyPoints = currentGeoJSON;
   // studyPoints = await findNearestLineSegmentsAsync(currentGeoJSON, studyRoads);
 
-  studyPoints = findNearestLineSegmentsFaster(currentGeoJSON, studyRoads, 0.03); // 30m Search radius for closest lane
+  studyPoints = findNearestLineSegmentsFaster(currentGeoJSON, studyRoads, 0.05); // 50m Search radius for closest lane
 
   // console.log(studyPoints);
 
   const classifiedRoads = await assignNearestClassification(
     studyRoads,
     studyPoints,
-    30, // Allowable search radius
+    30, // 30km Allowable search radius
   );
 
   console.log("Interpolation complete.");
@@ -138,6 +137,7 @@ async function findNearestLineSegmentsAsync(studyPoints, studyRoads) {
   return studyPoints;
 }
 
+// Associate lanes to points using KDBush spatial indexing algorithm
 function findNearestLineSegmentsFaster(studyPoints, studyRoads, searchRadius) {
   const index = new KDBush(studyRoads.features.length);
 
