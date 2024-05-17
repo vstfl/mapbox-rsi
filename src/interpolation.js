@@ -93,7 +93,7 @@ export async function interpolateGeoJSONLanes(currentGeoJSON) {
 
   // Load the subdivided study area dataset
   let studyRoads = await loadSubdividedRoads(
-    "./assets/I35I80_Lanes_500ft.geojson",
+    "./assets/I35I80_Lanes_100ft.geojson",
   );
   let studyPoints = currentGeoJSON;
   // studyPoints = await findNearestLineSegmentsAsync(currentGeoJSON, studyRoads);
@@ -139,13 +139,17 @@ async function findNearestLineSegmentsAsync(studyPoints, studyRoads) {
 
 // Associate lanes to points using KDBush spatial indexing algorithm
 function findNearestLineSegmentsFaster(studyPoints, studyRoads, searchRadius) {
-  const index = new KDBush(studyRoads.features.length);
+  // 43273 for 500ft, 138137 for 100ft (can determine size by checking error in console if there is a mismatch in allocated index size)
+  const roadPoints = 138137; // Hardcoded, must tune later depending on road seg geojson
+  const index = new KDBush(roadPoints); //
+  const geoidMap = new Map();
 
-  // Initialize indexing for all road segments
+  // Initialize indexing and mapping of all road segments
   studyRoads.features.map((line) => {
-    const avgCoordinates = averageCoordinates(line.geometry.coordinates);
-    const lineID = index.add(avgCoordinates[0], avgCoordinates[1]);
-    line.properties.geoid = lineID;
+    line.geometry.coordinates.map((point) => {
+      const lineID = index.add(point[0], point[1]);
+      geoidMap.set(lineID, line);
+    });
   });
 
   index.finish();
@@ -157,14 +161,12 @@ function findNearestLineSegmentsFaster(studyPoints, studyRoads, searchRadius) {
       index,
       pointFeature.geometry.coordinates[0],
       pointFeature.geometry.coordinates[1],
-      50,
+      3,
       searchRadius,
     );
-    // Check list of closest road segments, select only closest
+
     for (const lineID of nearestIDs) {
-      const closestRoad = studyRoads.features.filter(
-        (line) => line.properties.geoid === lineID,
-      )[0];
+      const closestRoad = geoidMap.get(lineID);
 
       if (closestRoad) {
         pointFeature.properties.direction = closestRoad.properties.ROUTEID;
@@ -182,18 +184,19 @@ async function assignNearestClassification(
   studyPoints,
   searchRadius,
 ) {
-  // console.log(studyPoints);
-  // console.log(studyRoads);
-
   // Initialize KDBush indexing
   const index = new KDBush(studyPoints.features.length);
 
-  studyPoints.features.map((point) => {
+  // Create a map for fast lookup of points by their geoid
+  const pointMap = new Map();
+
+  studyPoints.features.forEach((point) => {
     const pointID = index.add(
       point.geometry.coordinates[0],
       point.geometry.coordinates[1],
     );
     point.properties.geoid = pointID;
+    pointMap.set(pointID, point);
   });
 
   index.finish();
@@ -207,20 +210,18 @@ async function assignNearestClassification(
       index,
       avgCoordinates[0],
       avgCoordinates[1],
-      50,
+      10,
       searchRadius,
     );
 
     // Check list of closest points, select only those with same direction, and closest only
     for (const pointID of nearestIDs) {
-      const matchingPoint = studyPoints.features.filter(
-        (point) =>
-          point.properties.geoid === pointID &&
-          point.properties.direction === lineFeature.properties.ROUTEID,
-      )[0];
+      const matchingPoint = pointMap.get(pointID);
 
-      if (matchingPoint) {
-        // console.log("Match found for point", matchingPoint.properties.id);
+      if (
+        matchingPoint &&
+        matchingPoint.properties.direction === lineFeature.properties.ROUTEID
+      ) {
         lineFeature.properties.classification =
           matchingPoint.properties.classification;
         break;
