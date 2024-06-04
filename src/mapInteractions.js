@@ -186,6 +186,12 @@ function addInterpolationLayer(interpolationGeoJSON) {
 
 // Customize visualization/interactivity of geoJSON data here
 function addPointLayer(geojsonSource) {
+  map.loadImage("./assets/antenna.png", (error, image) => {
+    if (error) throw error;
+
+    map.addImage("rwis", image, { sdf: true });
+  });
+
   map.addSource("latestSource", {
     type: "geojson",
     data: geojsonSource,
@@ -328,14 +334,31 @@ map.on("click", "latestLayer", (event) => {
   // Define how values are interpreted
   let eventProperties = event.features[0].properties;
 
-  clickedPointValues = {
-    specificID: event.features[0]["id"],
-    avlID: eventProperties.id,
-    timestamp: timestampToISOString(eventProperties.timestamp),
-    classification: eventProperties.classification,
-    classes: eventProperties.class,
-    image: eventProperties.url,
-  };
+  if (eventProperties.type == "AVL") {
+    console.log(eventProperties);
+    clickedPointValues = {
+      specificID: event.features[0]["id"],
+      avlID: eventProperties.id,
+      timestamp: timestampToISOString(eventProperties.timestamp),
+      classification: eventProperties.classification,
+      classes: eventProperties.class,
+      image: eventProperties.url,
+    };
+  } else {
+    console.log(eventProperties);
+    console.log(JSON.parse(eventProperties.angles));
+    let recentangle = eventProperties.recentangle;
+    clickedPointValues = {
+      specificID: event.features[0]["id"],
+      avlID: eventProperties.id,
+      timestamp: timestampToISOString(eventProperties.timestamp),
+      classification: eventProperties.classification,
+      classes: JSON.stringify(
+        JSON.parse(eventProperties.angles)[recentangle].class,
+      ),
+      image: JSON.parse(eventProperties.angles)[recentangle].url,
+    };
+  }
 
   idDisplay.textContent = clickedPointValues.avlID;
   timeDisplay.textContent = clickedPointValues.timestamp;
@@ -412,11 +435,26 @@ map.on("mousemove", "latestLayer", (event) => {
       timeDisplay.textContent = timestampToISOString(
         hoveredFeature.properties.timestamp,
       );
-      imageDisplay.src = hoveredFeature.properties.url;
-      imageDisplay.parentNode.style.display = "block";
-
-      removeData(chart);
-      addData(chart, hoveredFeature.properties.class);
+      let recentangle;
+      if (hoveredFeature.properties.type == "RWIS") {
+        recentangle = hoveredFeature.properties["recentangle"];
+        imageDisplay.src = JSON.parse(hoveredFeature.properties.angles)[
+          recentangle
+        ].url;
+        imageDisplay.parentNode.style.display = "block";
+        removeData(chart);
+        addData(
+          chart,
+          JSON.stringify(
+            JSON.parse(hoveredFeature.properties.angles)[recentangle].class,
+          ),
+        );
+      } else {
+        imageDisplay.src = hoveredFeature.properties.url;
+        imageDisplay.parentNode.style.display = "block";
+        removeData(chart);
+        addData(chart, hoveredFeature.properties.class);
+      }
     }
   } else {
     // If no features are hovered, reset cursor, clear UI, and clear feature state

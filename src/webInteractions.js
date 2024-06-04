@@ -91,11 +91,12 @@ document
 
       // Perform the query to Firestore
       const [startTimestamp, endTimestamp] = calculateDataRange(date, window);
-      const imageQuery = await queryImagesByDateRange(
+      const [imageQueryAVL, imageQueryRWIS] = await queryImagesByDateRange(
         startTimestamp,
         endTimestamp,
       );
-      const newGeoJSON = convertToGeoJSON(imageQuery);
+      const newGeoJSON = convertToGeoJSON(imageQueryAVL, imageQueryRWIS);
+      console.log(newGeoJSON);
 
       // const geojsonString = JSON.stringify(newGeoJSON, null, 2); // For debugging purposes
       // console.log(geojsonString);
@@ -154,13 +155,12 @@ function removeLettersAfterUnderscore(str) {
   return str.replace(/_.*/, "");
 }
 
-function convertToGeoJSON(pointList) {
+function convertToGeoJSON(pointListAVL, pointListRWIS) {
   let data = [];
-  for (const point of pointList) {
+  for (const point of pointListAVL) {
     const base = point["data"];
     const id = removeLettersAfterUnderscore(point["id"]);
-
-    // Grab and organize all relevant values
+    // console.log(base);
     const lat = base["Position"]["latitude"];
     const lng = base["Position"]["longitude"];
     const classes = {
@@ -181,6 +181,7 @@ function convertToGeoJSON(pointList) {
 
     data.push({
       id: id,
+      type: "AVL",
       lat: lat,
       lng: lng,
       class: classes,
@@ -190,7 +191,94 @@ function convertToGeoJSON(pointList) {
     });
   }
 
+  const RWISMap = {};
+  // first pass: initialize all station data:
+  for (const point of pointListRWIS) {
+    const base = point["data"];
+    const id = removeLettersAfterUnderscore(point["id"]).substring(0, 8);
+    if (!(id in RWISMap)) {
+      const lat = base["Coordinates"]["latitude"];
+      const lng = base["Coordinates"]["longitude"];
+      const angles = {};
+      const station = {
+        id: id,
+        type: "RWIS",
+        lat: lat,
+        lng: lng,
+        angles: angles,
+      };
+      RWISMap[id] = station;
+    }
+  }
+
+  for (const point of pointListRWIS) {
+    const base = point["data"];
+    const id = removeLettersAfterUnderscore(point["id"]).substring(0, 8);
+
+    const classes = {
+      Undefined: base["Class 4"],
+      Bare: base["Class 1"],
+      Partly: base["Class 2"],
+      Full: base["Class 3"],
+    };
+
+    const classification = classByNumber(base["Predicted Class"]);
+    const url = base["Image"];
+    const timestamp = base["Date"]["seconds"];
+    const gradcam = base["GradCam"];
+    const angle = removeLettersAfterUnderscore(point["id"]).split("-")[2];
+
+    // output to dict
+    const angleDict = {
+      angle: angle,
+      timestamp: timestamp,
+      url: url,
+      class: classes,
+      classification: classification,
+      gradcam: gradcam,
+    };
+
+    if (angle in RWISMap[id]["angles"]) {
+      if (RWISMap[id]["angles"][angle]["timestamp"] < timestamp) {
+        RWISMap[id]["angles"][angle] = angleDict;
+      }
+    } else {
+      RWISMap[id]["angles"][angle] = angleDict;
+    }
+  }
+  // console.log(RWISMap);
+  for (const key in RWISMap) {
+    const station = RWISMap[key];
+    let mostRecentKey;
+    let mostRecentTimestamp = 0;
+    // Iterate through angles and find most recent classification
+    for (const anglekey in station["angles"]) {
+      let currentTimestamp = station["angles"][anglekey]["timestamp"];
+      if (currentTimestamp > mostRecentTimestamp) {
+        mostRecentKey = anglekey;
+        mostRecentTimestamp = currentTimestamp;
+      }
+    }
+    station["classification"] =
+      station["angles"][mostRecentKey]["classification"];
+    station["timestamp"] = mostRecentTimestamp;
+    station["recentangle"] = mostRecentKey;
+    data.push(station);
+  }
+  console.log(data);
   return geojson.parse(data, { Point: ["lat", "lng"] });
+}
+
+function classByNumber(classNumber) {
+  if (classNumber === 1) {
+    return "Bare";
+  } else if (classNumber === 2) {
+    return "Partly";
+  } else if (classNumber === 3) {
+    return "Full";
+  } else if (classNumber === 4) {
+    return "Undefined";
+  }
 }
 
 function highestNumberString(unde, bare, full, part) {
