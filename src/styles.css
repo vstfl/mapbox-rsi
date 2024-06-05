@@ -234,7 +234,9 @@ div.nav {
   cursor: pointer;
 }
 
-#shift-button:hover {
+#shift-button:hover,
+#img-button-right:hover,
+#img-button-left:hover {
   filter: brightness(300%);
 }
 
@@ -244,6 +246,34 @@ div.nav {
     transform 0.5s ease,
     width 0.5s ease;
   width: 200px !important;
+}
+
+#img-buttons {
+  position: relative;
+  top: -20px;
+  height: 50px;
+  display: none;
+  justify-content: space-between;
+  align-items: flex-end;
+  background-color: rgba(20, 20, 20, 0.534);
+  border-radius: 10px;
+}
+
+#img-button-right,
+#img-button-left {
+  z-index: 2;
+  background-color: #c5c5c500;
+  border: none;
+  cursor: pointer;
+}
+
+#img-button-right {
+  right: 7px;
+}
+
+#img-button-left {
+  transform: scaleX(-1);
+  left: 7px;
 }
 
 .flipped {
@@ -550,7 +580,8 @@ input:checked + .slider:before {
   height: auto;
   width: 100%;
   max-width: 100%;
-  border-radius: 10px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 
 .class-data {

@@ -4,6 +4,7 @@ import {
   updateInterpolation,
   panToAverage,
   currentGeoJSON,
+  clickedPointValues,
 } from "./mapInteractions.js";
 import {
   interpolateGeoJSON,
@@ -60,6 +61,25 @@ export function scrollToBottom() {
   let consoleDiv = document.querySelector(".console.resizable");
   consoleDiv.scrollTop = consoleDiv.scrollHeight;
 }
+
+// Handle image click to view GradCAM
+document.addEventListener("DOMContentLoaded", function () {
+  let imageElement = document.getElementById("pointImage");
+
+  function toggleImageSrc() {
+    let img1 = clickedPointValues.image;
+    if (!clickedPointValues.CAM && clickedPointValues.type == "RWIS") {
+      let img2 = `./assets/gradcamimages/Grad-CAM_${img1.split("/").pop()}`;
+      imageElement.src = img2;
+      clickedPointValues["CAM"] = true;
+    } else {
+      imageElement.src = img1;
+      clickedPointValues["CAM"] = false;
+    }
+  }
+
+  imageElement.addEventListener("click", toggleImageSrc);
+});
 
 // Handle form submission for querying
 document

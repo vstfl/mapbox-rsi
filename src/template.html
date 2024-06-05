@@ -146,7 +146,30 @@
 
           <div id="console-content" class="loadup" style="opacity: 0">
             <div class="snowplow-data">
-              <img id="pointImage" src="./assets/snowplow.jpg" />
+              <img
+                id="pointImage"
+                src="./assets/snowplow.jpg"
+                style="position: relative; z-index: 100"
+              />
+              <!-- add style="display: none to the img buttons" -->
+              <div id="img-buttons">
+                <button id="img-button-left">
+                  <img
+                    id="arrow-img"
+                    class="right-arrow"
+                    src="./assets/arrowt.png"
+                    style="width: 25px; height: 25px"
+                  />
+                </button>
+                <button id="img-button-right">
+                  <img
+                    id="arrow-img"
+                    class="right-arrow"
+                    src="./assets/arrowt.png"
+                    style="width: 25px; height: 25px"
+                  />
+                </button>
+              </div>
             </div>
             <nav id="menu"></nav>
             <div class="class-data">

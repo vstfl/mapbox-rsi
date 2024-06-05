@@ -186,12 +186,6 @@ function addInterpolationLayer(interpolationGeoJSON) {
 
 // Customize visualization/interactivity of geoJSON data here
 function addPointLayer(geojsonSource) {
-  map.loadImage("./assets/antenna.png", (error, image) => {
-    if (error) throw error;
-
-    map.addImage("rwis", image, { sdf: true });
-  });
-
   map.addSource("latestSource", {
     type: "geojson",
     data: geojsonSource,
@@ -220,10 +214,21 @@ function addPointLayer(geojsonSource) {
         "#554f56",
       ],
       "circle-radius": [
-        "case",
-        ["boolean", ["feature-state", "hover"], false],
-        12, // Larger when true
-        7,
+        "match",
+        ["get", "type"],
+        "RWIS",
+        [
+          "case",
+          ["boolean", ["feature-state", "hover"], false],
+          16, // Larger when true
+          12,
+        ],
+        [
+          "case",
+          ["boolean", ["feature-state", "hover"], false],
+          10, // Larger when true
+          6,
+        ],
       ],
       "circle-stroke-width": [
         "case",
@@ -264,7 +269,10 @@ const chart = newChart();
 let pointID = null;
 let uniqueID = null;
 let clickedPoint = false;
-let clickedPointValues = {};
+export let clickedPointValues = {
+  CAM: false,
+};
+let stateCAM = false;
 
 // General point interactivity
 map.on("mouseleave", "latestLayer", () => {
@@ -285,7 +293,9 @@ map.on("mouseleave", "latestLayer", () => {
     imageDisplay.src = "";
     imageDisplay.parentNode.style.display = "none";
     removeData(chart);
+    stateCAM = false;
   } else if (clickedPoint) {
+    clickedPointValues["CAM"] = false;
     idDisplay.textContent = clickedPointValues.avlID;
     timeDisplay.textContent = clickedPointValues.timestamp;
     imageDisplay.src = clickedPointValues.image;
@@ -333,6 +343,7 @@ map.on("click", "latestLayer", (event) => {
 
   // Define how values are interpreted
   let eventProperties = event.features[0].properties;
+  var imgControls = document.getElementById("img-buttons");
 
   if (eventProperties.type == "AVL") {
     console.log(eventProperties);
@@ -344,11 +355,21 @@ map.on("click", "latestLayer", (event) => {
       classes: eventProperties.class,
       image: eventProperties.url,
     };
+    imgControls.style.display = "none";
   } else {
-    console.log(eventProperties);
-    console.log(JSON.parse(eventProperties.angles));
+    // add function to trigger imgcontrol functionality
+    // should include:
+    // check how many images
+    // visualize # of images, what image out of total images
+    //
+    imgControls.style.display = "flex";
+
+    stateCAM = true;
+    // console.log(eventProperties);
+    // console.log(JSON.parse(eventProperties.angles));
     let recentangle = eventProperties.recentangle;
     clickedPointValues = {
+      type: eventProperties.type,
       specificID: event.features[0]["id"],
       avlID: eventProperties.id,
       timestamp: timestampToISOString(eventProperties.timestamp),
@@ -358,6 +379,8 @@ map.on("click", "latestLayer", (event) => {
       ),
       image: JSON.parse(eventProperties.angles)[recentangle].url,
     };
+
+    // if button is clicked, trigger function -> update/iterate through angles
   }
 
   idDisplay.textContent = clickedPointValues.avlID;
@@ -413,6 +436,7 @@ map.on("mousemove", "latestLayer", (event) => {
 
     // If the hovered feature is different from the currently hovered feature
     if (hoveredFeatureId !== uniqueID) {
+      stateCAM = false;
       // Clear feature state for the previously hovered feature
       if (uniqueID) {
         map.setFeatureState(
@@ -437,6 +461,7 @@ map.on("mousemove", "latestLayer", (event) => {
       );
       let recentangle;
       if (hoveredFeature.properties.type == "RWIS") {
+        stateCAM = true;
         recentangle = hoveredFeature.properties["recentangle"];
         imageDisplay.src = JSON.parse(hoveredFeature.properties.angles)[
           recentangle
@@ -571,8 +596,12 @@ realtimeToggle.addEventListener("change", (e) => {
   }
 });
 
-// Handle toggling of layers
+// Handle toggling of layers, toggling of CAM
 map.on("idle", () => {
+  if (stateCAM) {
+    console.log("yes");
+  }
+
   // If these two layers were not added to the map, abort
   if (
     !map.getLayer("latestLayer") ||
