@@ -58,7 +58,7 @@ var uiConfig = {
 var ui = new firebaseui.auth.AuthUI(firebase.auth());
 ui.start("#firebaseui-auth-container", uiConfig);
 
-// // Handle sign-in UI visibility
+// Handle sign-in UI visibility
 if (ui.isPendingRedirect()) {
   ui.start("#firebaseui-auth-container", uiConfig);
 }
@@ -71,7 +71,7 @@ export async function queryImagesByDateRange(startDate, endDate) {
 
   const images = await query(
     collectionRef,
-    limit(1000), // TODO: Adjust this later
+    limit(3000), // TODO: Adjust this later
     where("Date", ">=", startDate),
     where("Date", "<=", endDate),
     // where("Type", "!=", "RWIS"),
@@ -106,5 +106,6 @@ export async function queryImagesByDateRange(startDate, endDate) {
       ", RWIS Query: " +
       imagesArrayRWIS.length,
   );
+  console.log(imagesArrayRWIS);
   return [imagesArrayAVL, imagesArrayRWIS];
 }
