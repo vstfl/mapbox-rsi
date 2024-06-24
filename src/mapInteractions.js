@@ -1,4 +1,5 @@
 import mapboxgl from "mapbox-gl";
+import { DateTime } from "luxon";
 import { scrollToBottom } from "./webInteractions";
 import { addData, removeData, newChart } from "./charts.js";
 import RainLayer from "mapbox-gl-rain-layer";
@@ -393,34 +394,11 @@ map.on("click", "latestLayer", (event) => {
 });
 
 function timestampToISOString(timestamp) {
-  var date = new Date(timestamp * 1000);
-  var monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  var month = monthNames[date.getMonth()];
-  var day = ("0" + date.getDate()).slice(-2);
-  var year = date.getFullYear();
-  var hours = date.getHours();
-  var ampm = hours >= 12 ? "PM" : "AM";
-  hours = hours % 12;
-  hours = hours ? hours : 12; // Handle midnight (0 hours)
-  var minutes = ("0" + date.getMinutes()).slice(-2);
-
-  return (
-    month + " " + day + ", " + year + " - " + hours + ":" + minutes + " " + ampm
-  );
+  const date = DateTime.fromSeconds(timestamp, { zone: "America/Chicago" });
+  const formattedDateTime = date.toLocaleString(DateTime.DATETIME_FULL);
+  return formattedDateTime;
 }
+
 // Remove this function if not working properly
 map.on("mousemove", "latestLayer", (event) => {
   map.getCanvas().style.cursor = "pointer";

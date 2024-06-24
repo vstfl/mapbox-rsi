@@ -14,6 +14,7 @@ import {
 } from "./interpolation.js";
 import { map } from "./mapInteractions.js";
 import * as geojson from "geojson";
+import { DateTime } from "luxon";
 
 // Handle realtime toggle
 const realtimeToggle = document.querySelector("#realtime-toggle");
@@ -93,12 +94,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
 async function startQuery(date, window) {
   const [startTimestamp, endTimestamp] = calculateDataRange(date, window);
-  // TODO: Modify imageQueryRWIS to only grab images up to 15 minutes before the endTimestamp
   const [imageQueryAVL, imageQueryRWIS] = await queryImagesByDateRange(
     startTimestamp,
     endTimestamp,
   );
-  const actualImagesRWIS = await mesonetScrapeRWIS(
+  const actualImagesRWIS = await mesonetScrapeRWISv2(
     startTimestamp,
     endTimestamp,
   );
@@ -107,15 +107,13 @@ async function startQuery(date, window) {
     imageQueryRWIS,
   );
 
-  console.log(imagesForPredRWIS);
-  console.log("Outside of predictionExistsRWIS");
-
-  // TODO: THIS IS WHERE I AM: DEBUG this logic later
-  // TODO: Divid images into sets of 5 and send request to backend
-
-  // If there are images to predict, divid and send request to backend asynchronously
+  // If there are images to predict, prep request to RWIS backend asynchronously
   if (imagesForPredRWIS) {
+    console.log("Unpredicted RWIS images were found, sending to backend...");
+    console.log("Unpredicted images: " + imagesForPredRWIS.length);
     sendPredictionsRWIS(imagesForPredRWIS, date, window);
+  } else {
+    console.log("All available RWIS images already have predictions.");
   }
 
   // Update with initial visualization
@@ -123,44 +121,74 @@ async function startQuery(date, window) {
 }
 
 async function sendPredictionsRWIS(imagesForPredRWIS, date, window) {
-  postRequestToBackend(imagesForPredRWIS)
-    .then((responseData) => {
-      console.log("Response data:", responseData);
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
+  try {
+    console.log("POSTing to RWIS Backend");
+
+    console.time("Request Duration");
+    const responseData = await postRequestToBackend(imagesForPredRWIS);
+    console.timeEnd("Request Duration");
+
+    console.log("Response from RWIS Backend: ", responseData);
+  } catch (error) {
+    console.error("Error:", error);
+  }
 
   const [startTimestamp, endTimestamp] = calculateDataRange(date, window);
-
+  console.log("start: " + startTimestamp);
+  console.log("end: " + endTimestamp);
   // TODO: Modify imageQueryRWIS to only grab images up to 15 minutes before the endTimestamp
-
   const [imageQueryAVL, imageQueryRWIS] = await queryImagesByDateRange(
     startTimestamp,
     endTimestamp,
   );
-
+  console.log(imageQueryRWIS);
+  console.log(startTimestamp);
   updateAll(imageQueryAVL, imageQueryRWIS);
 }
 
+function chunkObject(obj, size) {
+  // Subdivide full dict to list of subdicts with length "size"
+  const chunks = [];
+  let currentChunk = {};
+
+  for (const [key, value] of Object.entries(obj)) {
+    currentChunk[key] = value;
+
+    if (Object.keys(currentChunk).length === size) {
+      chunks.push(currentChunk);
+      currentChunk = {};
+    }
+  }
+
+  if (Object.keys(currentChunk).length > 0) {
+    chunks.push(currentChunk);
+  }
+
+  return chunks;
+}
+
 const RWIS_URL = "https://index-xmctotgaqq-uc.a.run.app";
-// TODO: divide requests into 5, send
 function postRequestToBackend(imagesForPredRWIS) {
-  return new Promise((resolve, reject) => {
-    fetch(RWIS_URL, {
+  // console.log("Inside postRequestToBackend");
+
+  const chunks = chunkObject(imagesForPredRWIS, 10);
+
+  const promises = chunks.map((chunk) => {
+    return fetch(RWIS_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(imagesForPredRWIS),
-    })
-      .then((data) => {
-        resolve(data);
-      })
-      .catch((error) => {
-        reject(error);
-      });
+      body: JSON.stringify(chunk),
+    }).then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok " + response.statusText);
+      }
+      return response.json();
+    });
   });
+
+  return Promise.all(promises);
 }
 
 async function updateAll(imageQueryAVL, imageQueryRWIS) {
@@ -185,7 +213,13 @@ document
     if (!realtimeState) {
       // Get the query data
       const formData = new FormData(this);
+
+      // Conversion from local machine time to CDT Timezone (Iowa)
       date = formData.get("calendar");
+      console.log("TEST 1:" + date);
+      const dateTime = DateTime.fromISO(date, { zone: "America/Chicago" });
+      date = dateTime.setZone("America/Chicago").toISO();
+      console.log("QUERY DATE: " + date);
       window = formData.get("window");
 
       // Disables button temporarily (prevent for request spam)
@@ -198,9 +232,37 @@ document
         btn.style.cursor = "pointer";
         console.log("Button Available");
       }, 160 * window); // Scale button cooldown depending on size of window
+      await startQuery(date, window);
     }
-    await startQuery(date, window);
   });
+
+async function triggerBackendStartup(i) {
+  console.time("GET Request Duration " + i);
+  const response = await fetch(RWIS_URL, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await response.json();
+  console.log("Backend triggered successfully:", data);
+  console.timeEnd("GET Request Duration " + i);
+}
+
+const CONTAINERS = 5; // 5 fast requests spins up 2 containers
+// Upon startup, spin up cloud run containers in advance
+document.addEventListener("DOMContentLoaded", async (event) => {
+  console.log(
+    "Webpage has been opened, spinning up RWIS and AVL backend containers",
+  );
+
+  const promises = [];
+  for (let i = 0; i < CONTAINERS; i++) {
+    promises.push(triggerBackendStartup(i));
+  }
+
+  await Promise.all(promises);
+});
 
 // Handle Geostatistical Interpolation (RSI) Trigger
 let interpolationState = false;
@@ -216,36 +278,64 @@ document
   });
 
 // Logic to update website every minute in realtime mode
-function updateRealtimeData() {
+let isUpdating = false;
+async function updateRealtimeData() {
+  if (isUpdating) {
+    console.log(
+      "Previous realtime update is already in progress, skipping this interval",
+    );
+    return;
+  }
+
+  isUpdating = true;
+
   if (realtimeState) {
     let d = new Date().toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
-    // add logic for query data
-    // todo: grab current data in window
 
-    // todo: add date, and
-    // const date = "swag";
-    // const window = formData.get("window");
+    const formData = new FormData(document.getElementById("query-form"));
 
-    // Call startquery here for realtime
-    startQuery(date, window);
+    // figure this out later. make sure it obtains the local datetime string, and passes it off in a similar
+    // format to that of the output of datetime-local
+
+    // const date = new Date().toISOString().slice(0, 16);
+    // date = console.log("REALTIME DATE:" + date);
+
+    let date = DateTime.now().setZone("America/Chicago");
+    date = date.toISO();
+    console.log("Realtime Date: " + date);
+    const window = formData.get("window");
+
+    await startQuery(date, window);
 
     console.log("Window:", currentRange);
     console.log(`Latest map update: ${d}`);
   } else {
     console.log("Not in realtime state, not updating map");
   }
-}
-setInterval(updateRealtimeData, 60000);
 
+  isUpdating = false;
+}
+setInterval(updateRealtimeData, 20000);
+
+// Ensure date is in UTC (for standardization)
 function calculateDataRange(date, windowSize) {
   let timeDiff = windowSize * 1; //change to 60 for hours
   const dateTime = new Date(date);
+
+  // Already in UTC format, just defaulted to local timespace when console logged
   const startDate = new Date(dateTime.getTime() - timeDiff * 60000);
   const endDate = new Date(dateTime.getTime() + timeDiff * 60000);
-  console.log("start: " + startDate + "\n\n end:" + endDate);
+
+  console.log("start: " + startDate + "\nend:" + endDate);
+  console.log(
+    "UTC start: " +
+      startDate.toISOString() +
+      "\nUTC end: " +
+      endDate.toISOString(),
+  );
   return [startDate, endDate];
 }
 
@@ -365,7 +455,7 @@ function convertToGeoJSON(pointListAVL, pointListRWIS) {
     station["recentangle"] = mostRecentKey;
     data.push(station);
   }
-  console.log(data);
+  // console.log(data);
   return geojson.parse(data, { Point: ["lat", "lng"] });
 }
 
@@ -394,7 +484,9 @@ function highestNumberString(unde, bare, full, part) {
   }
 }
 
-async function mesonetScrapeRWIS(startTimestamp, endTimestamp) {
+async function mesonetScrapeRWISv2(startTimestamp, endTimestamp) {
+  // Return a list of available image URLs from mesonet
+  // TODO: Swap with list in email
   const ids = [
     "IDOT-000-03",
     "IDOT-014-00",
@@ -415,85 +507,132 @@ async function mesonetScrapeRWIS(startTimestamp, endTimestamp) {
     "IDOT-053-02",
   ];
 
-  // Limit the search to the end of date range - 15 minutes to limit GET requests
-  // At the moment, this causes around 300 requests to mesonet, not sure if they are fine with this,
-  // but regardless, try not to increase the amount. 15 minutes seems appropriate given image capturing periods
   let modifiedStart = new Date(endTimestamp);
-  modifiedStart.setMinutes(modifiedStart.getMinutes() - 15);
+  modifiedStart.setMinutes(modifiedStart.getMinutes() - 60);
 
-  const tasks = [];
-  let currentIteration = modifiedStart;
-  console.log(currentIteration);
-  console.log(endTimestamp);
-
+  const availableImages = [];
+  // Edgecase: iterate through days as well if timespan crosses two days
   for (const id of ids) {
-    currentIteration = new Date(modifiedStart);
-    while (currentIteration <= endTimestamp) {
-      const imageUrl = formatImageUrlRWIS(id, currentIteration);
-      tasks.push(imageUrl);
-      currentIteration.setMinutes(currentIteration.getMinutes() + 1);
-    }
+    const stationImages = await findImages(id, modifiedStart, endTimestamp);
+    availableImages.push(...stationImages);
   }
-  console.log("Potential Images: " + tasks.length);
 
-  const results = await Promise.all(
-    tasks.map((task) => checkImageExists(task)),
-  );
-  const availableImages = tasks.filter((url, index) => results[index]);
+  // const availableImages = tasks.filter((url, index) => results[index]);
 
-  console.log("Actual Available Images: " + availableImages.length);
-  // console.log(availableImages);
+  // console.log("Actual Available Images: " + availableImages.length);
+  console.log("Available images: " + availableImages.length);
   return availableImages;
 }
 
-async function checkImageExists(task) {
-  try {
-    const response = await fetch(task);
-    if (response.ok) {
-      return true;
-    } else {
-      return false;
-    }
-  } catch (error) {
-    console.error("Fetch error:", error);
+class DateTimeConstants {
+  constructor(timestamp, hoursToAdd = 0) {
+    this.date = new Date(timestamp);
+    this.date.setHours(this.date.getHours() + hoursToAdd);
   }
-  return false;
+  get year() {
+    return this.date.getUTCFullYear();
+  }
+  get month() {
+    return String(this.date.getUTCMonth() + 1).padStart(2, "0");
+  }
+  get day() {
+    return String(this.date.getUTCDate()).padStart(2, "0");
+  }
+  get hour() {
+    return String(this.date.getUTCHours()).padStart(2, "0");
+  }
+  get minute() {
+    return String(this.date.getUTCMinutes()).padStart(2, "0");
+  }
 }
 
-function formatImageUrlRWIS(rwisID, currentIteration) {
-  // Add 1 hours to the currentdate to adjust for timezone (I think)
-  // Add 2 hours to match database
-  // TODO: Figure out whats going on with this
-  // ! Might change in different timezones, its worth a check later if fully implemented
-  const tempIteration = new Date(currentIteration);
-  tempIteration.setHours(tempIteration.getHours() + 2);
+async function findImages(rwisID, startTimestamp, endTimestamp) {
+  // Use of .toISOString to enforce UTC timestamping
+  const s = new DateTimeConstants(startTimestamp);
+  const e = new DateTimeConstants(endTimestamp);
+  const stationURL = `https://mesonet.agron.iastate.edu/archive/data/${s.year}/${s.month}/${s.day}/camera/${rwisID}`;
+  const stationURLS = await parseStationURL(stationURL);
+  const stationFilteredImages = filterURLS(stationURLS, s, e);
+  return stationFilteredImages;
+}
 
-  const year = tempIteration.getFullYear();
-  const month = String(tempIteration.getMonth() + 1).padStart(2, "0");
-  const day = String(tempIteration.getDate()).padStart(2, "0");
-  const hour = String(tempIteration.getHours() + 5).padStart(2, "0");
-  const minute = String(tempIteration.getMinutes()).padStart(2, "0");
+function isInRange(urlHHMM, s, e) {
+  const urlHour = parseInt(urlHHMM.slice(0, 2), 10);
+  const urlMinute = parseInt(urlHHMM.slice(-2), 10);
 
-  return `https://mesonet.agron.iastate.edu/archive/data/${year}/${month}/${day}/camera/${rwisID}/${rwisID}_${year}${month}${day}${hour}${minute}.jpg`;
+  const startHour = parseInt(s.hour, 10);
+  const startMinute = parseInt(s.minute, 10);
+  const endHour = parseInt(e.hour, 10);
+  const endMinute = parseInt(e.minute, 10);
+
+  const urlTime = urlHour * 60 + urlMinute;
+  const startTime = startHour * 60 + startMinute;
+  const endTime = endHour * 60 + endMinute;
+
+  return urlTime >= startTime && urlTime <= endTime;
+}
+
+// Filter full list of images for specifically within daterange
+function filterURLS(stationURLS, s, e) {
+  // Can assume that images passed to this function consist only of images within the same day
+  // TODO: This creates unknown edgecases between days. Will probably have to re-write this for a full implementation
+
+  let filteredImages = [];
+  for (const url of stationURLS) {
+    const urlStart = url.lastIndexOf("_") + 1;
+    const urlEnd = url.lastIndexOf(".");
+    const urlHHMM = url.substring(urlStart, urlEnd).slice(-4);
+
+    if (isInRange(urlHHMM, s, e)) {
+      filteredImages.push(url);
+    }
+  }
+  return filteredImages;
+}
+
+async function parseStationURL(stationURL) {
+  let stationURLS = [];
+  try {
+    const response = await fetch(stationURL);
+    const htmlText = await response.text();
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlText, "text/html");
+    const links = doc.querySelectorAll("a");
+
+    links.forEach((link) => {
+      const href = link.getAttribute("href");
+      // console.log(href);
+      if (href.startsWith("IDOT") && href.endsWith(".jpg")) {
+        stationURLS.push(stationURL + "/" + href);
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching or parsing the URL:", error);
+  }
+
+  return stationURLS;
 }
 
 function predictionExistsRWIS(actualImagesRWIS, firebaseImages) {
   //actual images is a list of urls
-  // need to parse firebase images and
-  console.log("Inside predictionExistsRWIS()");
-  console.log(actualImagesRWIS);
-  console.log(firebaseImages);
+
+  // console.log("Inside predictionExistsRWIS()");
+  // console.log(actualImagesRWIS);
+  // console.log(firebaseImages);
 
   const requestJSON = {};
 
   for (const image of actualImagesRWIS) {
     let imgFound = false;
     for (const fireImage of firebaseImages) {
+      // These are URLS
       if (fireImage.data.Image == image) {
         imgFound = true;
         break;
       }
     }
+    // If not found, generate the requestJSON for the RWIS backend
     if (!imgFound) {
       let imgKey = image.replace(".jpg", "").split("/").pop();
       requestJSON[imgKey] = image;
@@ -501,6 +640,6 @@ function predictionExistsRWIS(actualImagesRWIS, firebaseImages) {
   }
 
   // console.log(requestJSON);
-
-  return requestJSON;
+  // Return falsy if requestJSON is empty
+  return Object.keys(requestJSON).length === 0 ? false : requestJSON;
 }

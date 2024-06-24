@@ -6,6 +6,7 @@ import {
   query,
   where,
   limit,
+  Timestamp,
 } from "firebase/firestore";
 
 import firebase from "firebase/compat/app";
@@ -68,12 +69,14 @@ export async function queryImagesByDateRange(startDate, endDate) {
   // console.log('Querying from ' + startDate + ' To ' + endDate)
 
   const collectionRef = collectionGroup(db, "Images");
+  const startTimestamp = Timestamp.fromDate(startDate);
+  const endTimestamp = Timestamp.fromDate(endDate);
 
   const images = await query(
     collectionRef,
     limit(3000), // TODO: Adjust this later
-    where("Date", ">=", startDate),
-    where("Date", "<=", endDate),
+    where("Date", ">=", startTimestamp),
+    where("Date", "<=", endTimestamp),
     // where("Type", "!=", "RWIS"),
   );
 
