@@ -217,12 +217,13 @@ function chunkObject(obj, size) {
 }
 
 const RWIS_URL = "https://index-xmctotgaqq-uc.a.run.app";
-function postRequestToBackend(imagesForPredRWIS, chunkSize, endpoint) {
+function postRequestToBackend(imagesForPred, chunkSize, endpoint) {
   // console.log("Inside postRequestToBackend");
 
   const URL = RWIS_URL + endpoint;
-  const chunks = chunkObject(imagesForPredRWIS, chunkSize);
-  // console.log(chunks);
+  const chunks = chunkObject(imagesForPred, chunkSize);
+  console.log("Chunked request data to be sent to backend:");
+  console.log(chunks);
 
   const promises = chunks.map((chunk) => {
     return fetch(URL, {
@@ -778,7 +779,7 @@ async function parseStationURL(stationURL) {
 
 function predictionExistsAVL(actualImagesAVL, firebaseImages) {
   // console.log("Inside predictionExistsAVL()");
-  // console.log(actualImagesAVL);
+  console.log(actualImagesAVL);
   // "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A31614/A31614_201901121352.jpg"
   // console.log(firebaseImages);
   //
@@ -796,7 +797,7 @@ function predictionExistsAVL(actualImagesAVL, firebaseImages) {
     }
     if (!imgFound) {
       let imgKey = image.imgurl.split("/").pop().replace(".jpg", "");
-      requestJSON[imgKey] = image.imgurl;
+      requestJSON[imgKey] = image;
     }
   }
   // console.log(requestJSON);
