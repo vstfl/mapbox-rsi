@@ -69,31 +69,39 @@ export async function queryImagesByDateRange(startDate, endDate) {
   // console.log('Querying from ' + startDate + ' To ' + endDate)
 
   const collectionRef = collectionGroup(db, "Images");
+  // console.log("inside firebasehandler");
+
   const startTimestamp = Timestamp.fromDate(startDate);
+
+  const modStart = new Date(endDate.getTime() - 60 * 60000); // Change 60. This value should match that of the mesonetscrape
+  const startTimestampRWIS = Timestamp.fromDate(modStart); // Distinction to ensure RWIS data is latest rather than windowed
+
   const endTimestamp = Timestamp.fromDate(endDate);
 
-  const images = await query(
+  const imagesAVL = await query(
     collectionRef,
-    limit(3000), // TODO: Adjust this later
+    limit(1000), // TODO: Adjust this later
     where("Date", ">=", startTimestamp),
     where("Date", "<=", endTimestamp),
     // where("Type", "!=", "RWIS"),
   );
 
-  const querySnapshot = await getDocs(images);
+  const imagesRWIS = await query(
+    collectionRef,
+    limit(300), // TODO: Adjust this later
+    where("Date", ">=", startTimestampRWIS),
+    where("Date", "<=", endTimestamp),
+    where("Type", "==", "RWIS"),
+  );
+
+  const querySnapshotAVL = await getDocs(imagesAVL);
+  const querySnapshotRWIS = await getDocs(imagesRWIS);
   const imagesArrayAVL = [];
   const imagesArrayRWIS = [];
 
-  // Temporary fix to ignore RWIS entries
-
-  querySnapshot.forEach((doc) => {
+  querySnapshotAVL.forEach((doc) => {
     // console.log(doc.data());
-    if (doc.data()["Type"] == "RWIS") {
-      imagesArrayRWIS.push({
-        id: doc.id,
-        data: doc.data(),
-      });
-    } else {
+    if (doc.id.startsWith("A")) {
       imagesArrayAVL.push({
         id: doc.id,
         data: doc.data(),
@@ -101,6 +109,18 @@ export async function queryImagesByDateRange(startDate, endDate) {
     }
   });
 
+  querySnapshotRWIS.forEach((doc) => {
+    if (doc.data()["Type"] == "RWIS") {
+      imagesArrayRWIS.push({
+        id: doc.id,
+        data: doc.data(),
+      });
+    }
+  });
+
+  // TODO: Remove any duplicates (entries with same image url)
+  // REASON: AVL source data can come from the previous archive and the new archive, so overlaps can exist
+  // Do not delete the old archive, as a backup is important, but do delete the new archive data for debugging.
   // console.log('Return of Query (first obj): '+ JSON.stringify(imagesArray[0], null, 2))
   // console.log('Data inside of first obj: '+ imagesArray[0].data)
   console.log(
@@ -109,6 +129,6 @@ export async function queryImagesByDateRange(startDate, endDate) {
       ", RWIS Query: " +
       imagesArrayRWIS.length,
   );
-  console.log(imagesArrayRWIS);
+  // console.log(imagesArrayRWIS);
   return [imagesArrayAVL, imagesArrayRWIS];
 }

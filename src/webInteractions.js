@@ -98,19 +98,39 @@ async function startQuery(date, window) {
     startTimestamp,
     endTimestamp,
   );
+
+  // Scrape online database if AVL/RWIS images exist during time window
+  // const actualImagesAVL = await mesonetScrapeAVL(startTimestamp, endTimestamp);
+  const actualImagesAVL = await mesonetGETAVL(date, window);
+
   const actualImagesRWIS = await mesonetScrapeRWISv2(
     startTimestamp,
     endTimestamp,
   );
+
+  // Construct the request for backend if predictions need to be completed
   const imagesForPredRWIS = predictionExistsRWIS(
     actualImagesRWIS,
     imageQueryRWIS,
   );
+  const imagesForPredAVL = predictionExistsAVL(actualImagesAVL, imageQueryAVL);
 
-  // If there are images to predict, prep request to RWIS backend asynchronously
+  // If there are images to predict, prep request to RWIS/AVL backend asynchronously
+  if (imagesForPredAVL) {
+    console.log("Unpredicted AVL images were found, sending to backend...");
+    console.log(
+      "# of unpredicted AVL images: " + Object.keys(imagesForPredAVL).length,
+    );
+    sendPredictionsAVL(imagesForPredAVL, date, window);
+  } else {
+    console.log("All available AVL images already have predictions.");
+  }
+
   if (imagesForPredRWIS) {
     console.log("Unpredicted RWIS images were found, sending to backend...");
-    console.log("Unpredicted images: " + imagesForPredRWIS.length);
+    console.log(
+      "# of unpredicted RWIS images: " + Object.keys(imagesForPredRWIS).length,
+    );
     sendPredictionsRWIS(imagesForPredRWIS, date, window);
   } else {
     console.log("All available RWIS images already have predictions.");
@@ -120,12 +140,41 @@ async function startQuery(date, window) {
   updateAll(imageQueryAVL, imageQueryRWIS);
 }
 
+async function sendPredictionsAVL(imagesForPredAVL, date, window) {
+  try {
+    console.log("POSTing to AVL Backend");
+
+    console.time("Request Duration");
+    const responseData = await postRequestToBackend(
+      imagesForPredAVL,
+      50,
+      "/avl",
+    );
+    console.timeEnd("Request Duration");
+
+    console.log("Response from AVL Backend: ", responseData);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+
+  const [startTimestamp, endTimestamp] = calculateDataRange(date, window);
+  // console.log("start: " + startTimestamp);
+  // console.log("end: " + endTimestamp);
+  const [imageQueryAVL, imageQueryRWIS] = await queryImagesByDateRange(
+    startTimestamp,
+    endTimestamp,
+  );
+  // console.log(imageQueryRWIS);
+  // console.log(startTimestamp);
+  updateAll(imageQueryAVL, imageQueryRWIS);
+}
+
 async function sendPredictionsRWIS(imagesForPredRWIS, date, window) {
   try {
     console.log("POSTing to RWIS Backend");
 
     console.time("Request Duration");
-    const responseData = await postRequestToBackend(imagesForPredRWIS);
+    const responseData = await postRequestToBackend(imagesForPredRWIS, 10, "");
     console.timeEnd("Request Duration");
 
     console.log("Response from RWIS Backend: ", responseData);
@@ -134,15 +183,15 @@ async function sendPredictionsRWIS(imagesForPredRWIS, date, window) {
   }
 
   const [startTimestamp, endTimestamp] = calculateDataRange(date, window);
-  console.log("start: " + startTimestamp);
-  console.log("end: " + endTimestamp);
+  // console.log("start: " + startTimestamp);
+  // console.log("end: " + endTimestamp);
   // TODO: Modify imageQueryRWIS to only grab images up to 15 minutes before the endTimestamp
   const [imageQueryAVL, imageQueryRWIS] = await queryImagesByDateRange(
     startTimestamp,
     endTimestamp,
   );
-  console.log(imageQueryRWIS);
-  console.log(startTimestamp);
+  // console.log(imageQueryRWIS);
+  // console.log(startTimestamp);
   updateAll(imageQueryAVL, imageQueryRWIS);
 }
 
@@ -168,13 +217,15 @@ function chunkObject(obj, size) {
 }
 
 const RWIS_URL = "https://index-xmctotgaqq-uc.a.run.app";
-function postRequestToBackend(imagesForPredRWIS) {
+function postRequestToBackend(imagesForPredRWIS, chunkSize, endpoint) {
   // console.log("Inside postRequestToBackend");
 
-  const chunks = chunkObject(imagesForPredRWIS, 10);
+  const URL = RWIS_URL + endpoint;
+  const chunks = chunkObject(imagesForPredRWIS, chunkSize);
+  // console.log(chunks);
 
   const promises = chunks.map((chunk) => {
-    return fetch(RWIS_URL, {
+    return fetch(URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -188,6 +239,7 @@ function postRequestToBackend(imagesForPredRWIS) {
     });
   });
 
+  console.log("\n# of requests to backend: " + Object.keys(promises).length);
   return Promise.all(promises);
 }
 
@@ -290,18 +342,13 @@ async function updateRealtimeData() {
   isUpdating = true;
 
   if (realtimeState) {
+    console.log("\n\nPerforming realtime update...");
     let d = new Date().toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
 
     const formData = new FormData(document.getElementById("query-form"));
-
-    // figure this out later. make sure it obtains the local datetime string, and passes it off in a similar
-    // format to that of the output of datetime-local
-
-    // const date = new Date().toISOString().slice(0, 16);
-    // date = console.log("REALTIME DATE:" + date);
 
     let date = DateTime.now().setZone("America/Chicago");
     date = date.toISO();
@@ -318,7 +365,7 @@ async function updateRealtimeData() {
 
   isUpdating = false;
 }
-setInterval(updateRealtimeData, 20000);
+setInterval(updateRealtimeData, 40000);
 
 // Ensure date is in UTC (for standardization)
 function calculateDataRange(date, windowSize) {
@@ -329,7 +376,7 @@ function calculateDataRange(date, windowSize) {
   const startDate = new Date(dateTime.getTime() - timeDiff * 60000);
   const endDate = new Date(dateTime.getTime() + timeDiff * 60000);
 
-  console.log("start: " + startDate + "\nend:" + endDate);
+  // console.log("start: " + startDate + "\nend:" + endDate);
   console.log(
     "UTC start: " +
       startDate.toISOString() +
@@ -484,6 +531,123 @@ function highestNumberString(unde, bare, full, part) {
   }
 }
 
+async function mesonetGETAVL(date, window) {
+  console.log("Performing get request to mesonet...");
+  const baseUrl = "https://mesonet.agron.iastate.edu/api/1/idot_dashcam.json";
+
+  const dateTime = new Date(date);
+  const validTimestamp = dateTime.toISOString();
+  const url = `${baseUrl}?valid=${encodeURIComponent(validTimestamp)}&window=${window}`;
+
+  console.log(url);
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok " + response.statusText);
+    }
+
+    const data = await response.json();
+    console.log("Response from mesonet API:", data);
+    return data;
+  } catch (error) {
+    console.error("There was a problem fetching the AVL data:", error);
+    throw error;
+  }
+}
+
+// DEFUNCT
+// REASON: Using the mesonet API is much faster in cases where a day has a very large amount of vehicles
+async function mesonetScrapeAVL(startTimestamp, endTimestamp) {
+  const availableImages = [];
+  // https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33537/
+  // For now, assume data spans within a day (ignore edge cases wherein start is one day and end is another)
+  const s = new DateTimeConstants(startTimestamp);
+  const e = new DateTimeConstants(endTimestamp);
+
+  const truckURL = `https://mesonet.agron.iastate.edu/archive/data/${s.year}/${s.month}/${s.day}/camera/idot_trucks`;
+  const truckImageURLS = await parseTruckURL(truckURL);
+
+  const truckFilteredImages = filterURLS(truckImageURLS, s, e);
+
+  console.log(truckImageURLS);
+  console.log(truckFilteredImages);
+
+  console.log(
+    "\n\nLength comparison: \n\nAll Truck Images: " +
+      truckImageURLS.length +
+      "\nDate Filtered Truck Images: " +
+      truckFilteredImages.length,
+  );
+
+  // console.log("Available AVL images: " + availableImages.length);
+  // return availableImages;
+}
+
+// DEFUNCT
+async function parseTruckURL(truckURL) {
+  let truckURLS = [];
+  try {
+    const response = await fetch(truckURL);
+    const htmlText = await response.text();
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlText, "text/html");
+    const truckLinks = doc.querySelectorAll("a");
+
+    truckLinks.forEach((link) => {
+      const href = link.getAttribute("href");
+
+      if (href.startsWith("A")) {
+        truckURLS.push(truckURL + "/" + href);
+      }
+    });
+    // console.log(truckURLS);
+  } catch (error) {
+    console.error("Error fetching or parsing the AVL Truck URL:", error);
+  }
+
+  const truckImageURLS = [];
+  try {
+    // Can take a super long time on very heavy days (2019-01-12 has over 70,000 images)
+    // 70,000 images takes around 17 seconds to parse
+    // Could probably optimize this by taking into account the "last modified" date
+    // (i.e. if startTimestamp > last modified -> ignore)
+    console.time("Fetch each truck URL");
+    const fetches = truckURLS.map((truck) =>
+      fetch(truck).then((res) => res.text()),
+    );
+    const htmlTexts = await Promise.all(fetches);
+    console.timeEnd("Fetch each truck URL");
+    console.log("SWAG 1");
+    htmlTexts.forEach((htmlText) => {
+      console.log("YES");
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlText, "text/html");
+      const truckImages = doc.querySelectorAll("a");
+
+      truckImages.forEach((link) => {
+        const href = link.getAttribute("href");
+
+        if (href.endsWith(".jpg") && href.startsWith("A")) {
+          truckImageURLS.push(href);
+        }
+      });
+    });
+    // console.log(truckImageURLS);
+  } catch (error) {
+    console.error("Error fetching or parsing the AVL Truck Image URL:", error);
+  }
+
+  return truckImageURLS;
+}
+
 async function mesonetScrapeRWISv2(startTimestamp, endTimestamp) {
   // Return a list of available image URLs from mesonet
   // TODO: Swap with list in email
@@ -517,10 +681,8 @@ async function mesonetScrapeRWISv2(startTimestamp, endTimestamp) {
     availableImages.push(...stationImages);
   }
 
-  // const availableImages = tasks.filter((url, index) => results[index]);
-
   // console.log("Actual Available Images: " + availableImages.length);
-  console.log("Available images: " + availableImages.length);
+  console.log("Available RWIS images: " + availableImages.length);
   return availableImages;
 }
 
@@ -612,6 +774,34 @@ async function parseStationURL(stationURL) {
   }
 
   return stationURLS;
+}
+
+function predictionExistsAVL(actualImagesAVL, firebaseImages) {
+  // console.log("Inside predictionExistsAVL()");
+  // console.log(actualImagesAVL);
+  // "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A31614/A31614_201901121352.jpg"
+  // console.log(firebaseImages);
+  //
+
+  const requestJSON = {};
+
+  for (const image of actualImagesAVL.data) {
+    let imgFound = false;
+    for (const fireImage of firebaseImages) {
+      if (fireImage.data.IMAGE_URL == image.imgurl) {
+        imgFound = true;
+        console.log("TRUE TRUE TRUE");
+        break;
+      }
+    }
+    if (!imgFound) {
+      let imgKey = image.imgurl.split("/").pop().replace(".jpg", "");
+      requestJSON[imgKey] = image.imgurl;
+    }
+  }
+  // console.log(requestJSON);
+  // console.log(Object.keys(requestJSON).length);
+  return Object.keys(requestJSON).length === 0 ? false : requestJSON;
 }
 
 function predictionExistsRWIS(actualImagesRWIS, firebaseImages) {

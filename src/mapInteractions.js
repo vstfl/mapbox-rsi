@@ -330,7 +330,7 @@ map.on("click", "latestLayer", (event) => {
   const padding = {};
   let currentWidth = document.getElementById("console").clientWidth - 200;
   padding["left"] = flipped ? 0 : currentWidth;
-  console.log(padding);
+  // console.log(padding);
 
   map.easeTo({
     center: coordinate,
@@ -577,7 +577,7 @@ realtimeToggle.addEventListener("change", (e) => {
 // Handle toggling of layers, toggling of CAM
 map.on("idle", () => {
   if (stateCAM) {
-    console.log("yes");
+    // console.log("yes");
   }
 
   // If these two layers were not added to the map, abort
