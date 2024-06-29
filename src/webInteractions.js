@@ -147,7 +147,7 @@ async function sendPredictionsAVL(imagesForPredAVL, date, window) {
     console.time("Request Duration");
     const responseData = await postRequestToBackend(
       imagesForPredAVL,
-      50,
+      100,
       "/avl",
     );
     console.timeEnd("Request Duration");
@@ -222,10 +222,12 @@ function postRequestToBackend(imagesForPred, chunkSize, endpoint) {
 
   const URL = RWIS_URL + endpoint;
   const chunks = chunkObject(imagesForPred, chunkSize);
-  console.log("Chunked request data to be sent to backend:");
-  console.log(chunks);
+  // console.log("Chunked request data to be sent to backend:");
+  // const jsonString = JSON.stringify(chunks, null, 2);
+  // console.log(jsonString);
 
   const promises = chunks.map((chunk) => {
+    // console.log(JSON.stringify(chunk, null, 2));
     return fetch(URL, {
       method: "POST",
       headers: {

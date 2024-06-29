@@ -80,10 +80,10 @@ export async function queryImagesByDateRange(startDate, endDate) {
 
   const imagesAVL = await query(
     collectionRef,
-    limit(1000), // TODO: Adjust this later
+    limit(5000), // TODO: Adjust this later
     where("Date", ">=", startTimestamp),
     where("Date", "<=", endTimestamp),
-    // where("Type", "!=", "RWIS"),
+    where("Type", "==", "AVL"),
   );
 
   const imagesRWIS = await query(
@@ -101,7 +101,8 @@ export async function queryImagesByDateRange(startDate, endDate) {
 
   querySnapshotAVL.forEach((doc) => {
     // console.log(doc.data());
-    if (doc.id.startsWith("A")) {
+    // if (doc.id.startsWith("A")) {
+    if (doc.data()["Type"] == "AVL") {
       imagesArrayAVL.push({
         id: doc.id,
         data: doc.data(),

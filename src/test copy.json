@@ -1,0 +1,452 @@
+{
+  "A34336_201901121404": {
+    "level_0": 776,
+    "index": 777,
+    "cid": "A34336",
+    "utc_valid": "2019-01-12T14:04Z",
+    "lon": -93.513915,
+    "lat": 41.646327001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A34336/A34336_201901121404.jpg"
+  },
+  "A33646_201901121404": {
+    "level_0": 777,
+    "index": 778,
+    "cid": "A33646",
+    "utc_valid": "2019-01-12T14:04Z",
+    "lon": -93.775168,
+    "lat": 41.668422001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33646/A33646_201901121404.jpg"
+  },
+  "A34732_201901121404": {
+    "level_0": 778,
+    "index": 779,
+    "cid": "A34732",
+    "utc_valid": "2019-01-12T14:04Z",
+    "lon": -92.581863,
+    "lat": 42.173793001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A34732/A34732_201901121404.jpg"
+  },
+  "A32859_201901121404": {
+    "level_0": 779,
+    "index": 780,
+    "cid": "A32859",
+    "utc_valid": "2019-01-12T14:04Z",
+    "lon": -91.742232,
+    "lat": 42.144465001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A32859/A32859_201901121404.jpg"
+  },
+  "A32021_201901121404": {
+    "level_0": 780,
+    "index": 781,
+    "cid": "A32021",
+    "utc_valid": "2019-01-12T14:04Z",
+    "lon": -93.599372,
+    "lat": 41.599017001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A32021/A32021_201901121404.jpg"
+  },
+  "A32904_201901121404": {
+    "level_0": 781,
+    "index": 782,
+    "cid": "A32904",
+    "utc_valid": "2019-01-12T14:04Z",
+    "lon": -95.447662,
+    "lat": 41.289165001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A32904/A32904_201901121404.jpg"
+  },
+  "A33299_201901121404": {
+    "level_0": 782,
+    "index": 783,
+    "cid": "A33299",
+    "utc_valid": "2019-01-12T14:04Z",
+    "lon": -92.83367,
+    "lat": 40.935603001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33299/A33299_201901121404.jpg"
+  },
+  "A34375_201901121404": {
+    "level_0": 783,
+    "index": 784,
+    "cid": "A34375",
+    "utc_valid": "2019-01-12T14:04Z",
+    "lon": -91.137192,
+    "lat": 42.052600001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A34375/A34375_201901121404.jpg"
+  },
+  "A34697_201901121404": {
+    "level_0": 785,
+    "index": 786,
+    "cid": "A34697",
+    "utc_valid": "2019-01-12T14:04Z",
+    "lon": -90.564842,
+    "lat": 41.619522001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A34697/A34697_201901121404.jpg"
+  },
+  "A32080_201901121404": {
+    "level_0": 786,
+    "index": 787,
+    "cid": "A32080",
+    "utc_valid": "2019-01-12T14:04Z",
+    "lon": -95.052733,
+    "lat": 42.078498001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A32080/A32080_201901121404.jpg"
+  },
+  "A34773_201901121404": {
+    "level_0": 788,
+    "index": 789,
+    "cid": "A34773",
+    "utc_valid": "2019-01-12T14:04Z",
+    "lon": -92.397948,
+    "lat": 41.000568001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A34773/A34773_201901121404.jpg"
+  },
+  "A32580_201901121404": {
+    "level_0": 789,
+    "index": 790,
+    "cid": "A32580",
+    "utc_valid": "2019-01-12T14:04Z",
+    "lon": -91.562888,
+    "lat": 40.664875001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A32580/A32580_201901121404.jpg"
+  },
+  "A32834_201901121404": {
+    "level_0": 790,
+    "index": 791,
+    "cid": "A32834",
+    "utc_valid": "2019-01-12T14:04Z",
+    "lon": -92.550185,
+    "lat": 41.117885001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A32834/A32834_201901121404.jpg"
+  },
+  "A33658_201901121405": {
+    "level_0": 792,
+    "index": 793,
+    "cid": "A33658",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -92.541365,
+    "lat": 41.286620001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33658/A33658_201901121405.jpg"
+  },
+  "A32581_201901121405": {
+    "level_0": 793,
+    "index": 794,
+    "cid": "A32581",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -94.614745,
+    "lat": 40.979225001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A32581/A32581_201901121405.jpg"
+  },
+  "A32078_201901121405": {
+    "level_0": 794,
+    "index": 795,
+    "cid": "A32078",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -92.72731,
+    "lat": 41.698958001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A32078/A32078_201901121405.jpg"
+  },
+  "A34652_201901121405": {
+    "level_0": 795,
+    "index": 796,
+    "cid": "A34652",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -92.451217,
+    "lat": 42.505142001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A34652/A34652_201901121405.jpg"
+  },
+  "A33690_201901121405": {
+    "level_0": 796,
+    "index": 797,
+    "cid": "A33690",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -91.327598,
+    "lat": 40.669638001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33690/A33690_201901121405.jpg"
+  },
+  "A34389_201901121405": {
+    "level_0": 797,
+    "index": 798,
+    "cid": "A34389",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -93.51448,
+    "lat": 41.646068001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A34389/A34389_201901121405.jpg"
+  },
+  "A31314_201901121405": {
+    "level_0": 798,
+    "index": 799,
+    "cid": "A31314",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -96.037712,
+    "lat": 41.675025001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A31314/A31314_201901121405.jpg"
+  },
+  "A33297_201901121405": {
+    "level_0": 800,
+    "index": 801,
+    "cid": "A33297",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -93.726088,
+    "lat": 41.614860001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33297/A33297_201901121405.jpg"
+  },
+  "A33691_201901121405": {
+    "level_0": 801,
+    "index": 802,
+    "cid": "A33691",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -92.676513,
+    "lat": 40.698153001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33691/A33691_201901121405.jpg"
+  },
+  "A34340_201901121405": {
+    "level_0": 802,
+    "index": 803,
+    "cid": "A34340",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -91.655907,
+    "lat": 40.973555001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A34340/A34340_201901121405.jpg"
+  },
+  "A33539_201901121405": {
+    "level_0": 803,
+    "index": 804,
+    "cid": "A33539",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -93.306968,
+    "lat": 42.007568001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33539/A33539_201901121405.jpg"
+  },
+  "A33523_201901121405": {
+    "level_0": 804,
+    "index": 805,
+    "cid": "A33523",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -92.59114,
+    "lat": 41.815208001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33523/A33523_201901121405.jpg"
+  },
+  "A34017_201901121405": {
+    "level_0": 805,
+    "index": 806,
+    "cid": "A34017",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -91.098945,
+    "lat": 42.062953001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A34017/A34017_201901121405.jpg"
+  },
+  "A32842_201901121405": {
+    "level_0": 806,
+    "index": 807,
+    "cid": "A32842",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -90.567252,
+    "lat": 41.623278001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A32842/A32842_201901121405.jpg"
+  },
+  "A32583_201901121405": {
+    "level_0": 807,
+    "index": 808,
+    "cid": "A32583",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -91.074882,
+    "lat": 42.661380001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A32583/A32583_201901121405.jpg"
+  },
+  "A31317_201901121405": {
+    "level_0": 809,
+    "index": 810,
+    "cid": "A31317",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -95.69406,
+    "lat": 40.685337001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A31317/A31317_201901121405.jpg"
+  },
+  "A32046_201901121405": {
+    "level_0": 810,
+    "index": 811,
+    "cid": "A32046",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -95.110252,
+    "lat": 41.317547001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A32046/A32046_201901121405.jpg"
+  },
+  "A33671_201901121405": {
+    "level_0": 811,
+    "index": 812,
+    "cid": "A33671",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -91.545218,
+    "lat": 40.992908001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33671/A33671_201901121405.jpg"
+  },
+  "A34679_201901121405": {
+    "level_0": 812,
+    "index": 813,
+    "cid": "A34679",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -95.649452,
+    "lat": 40.621458001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A34679/A34679_201901121405.jpg"
+  },
+  "A33524_201901121405": {
+    "level_0": 813,
+    "index": 814,
+    "cid": "A33524",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -93.555907,
+    "lat": 41.877848001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33524/A33524_201901121405.jpg"
+  },
+  "A34023_201901121405": {
+    "level_0": 815,
+    "index": 816,
+    "cid": "A34023",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -91.613815,
+    "lat": 42.464335001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A34023/A34023_201901121405.jpg"
+  },
+  "A33301_201901121405": {
+    "level_0": 816,
+    "index": 817,
+    "cid": "A33301",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -93.693992,
+    "lat": 41.366798001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33301/A33301_201901121405.jpg"
+  },
+  "A33305_201901121405": {
+    "level_0": 817,
+    "index": 818,
+    "cid": "A33305",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -92.282538,
+    "lat": 41.336475001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33305/A33305_201901121405.jpg"
+  },
+  "A34638_201901121405": {
+    "level_0": 819,
+    "index": 820,
+    "cid": "A34638",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -92.420828,
+    "lat": 42.442985001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A34638/A34638_201901121405.jpg"
+  },
+  "A34741_201901121405": {
+    "level_0": 821,
+    "index": 822,
+    "cid": "A34741",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -93.119727,
+    "lat": 42.556797001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A34741/A34741_201901121405.jpg"
+  },
+  "A34370_201901121405": {
+    "level_0": 823,
+    "index": 824,
+    "cid": "A34370",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -95.549735,
+    "lat": 41.030783001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A34370/A34370_201901121405.jpg"
+  },
+  "A31157_201901121405": {
+    "level_0": 824,
+    "index": 825,
+    "cid": "A31157",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -91.327773,
+    "lat": 40.841910001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A31157/A31157_201901121405.jpg"
+  },
+  "A33293_201901121405": {
+    "level_0": 826,
+    "index": 827,
+    "cid": "A33293",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -93.661765,
+    "lat": 41.593005001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33293/A33293_201901121405.jpg"
+  },
+  "A32853_201901121405": {
+    "level_0": 827,
+    "index": 828,
+    "cid": "A32853",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -94.0082,
+    "lat": 41.551987001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A32853/A32853_201901121405.jpg"
+  },
+  "A33870_201901121405": {
+    "level_0": 828,
+    "index": 829,
+    "cid": "A33870",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -90.956328,
+    "lat": 42.027725001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33870/A33870_201901121405.jpg"
+  },
+  "A34723_201901121405": {
+    "level_0": 829,
+    "index": 830,
+    "cid": "A34723",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -91.608123,
+    "lat": 41.702457001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A34723/A34723_201901121405.jpg"
+  },
+  "A33655_201901121405": {
+    "level_0": 830,
+    "index": 831,
+    "cid": "A33655",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -93.6613,
+    "lat": 41.513903001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33655/A33655_201901121405.jpg"
+  },
+  "A32858_201901121405": {
+    "level_0": 831,
+    "index": 832,
+    "cid": "A32858",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -94.440277,
+    "lat": 41.301757001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A32858/A32858_201901121405.jpg"
+  },
+  "A33505_201901121405": {
+    "level_0": 832,
+    "index": 833,
+    "cid": "A33505",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -93.659805,
+    "lat": 41.593005001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33505/A33505_201901121405.jpg"
+  },
+  "A33829_201901121405": {
+    "level_0": 833,
+    "index": 834,
+    "cid": "A33829",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -93.109458,
+    "lat": 41.302417001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33829/A33829_201901121405.jpg"
+  },
+  "A33536_201901121405": {
+    "level_0": 834,
+    "index": 835,
+    "cid": "A33536",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -90.671645,
+    "lat": 41.506293001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A33536/A33536_201901121405.jpg"
+  },
+  "A34392_201901121405": {
+    "level_0": 835,
+    "index": 836,
+    "cid": "A34392",
+    "utc_valid": "2019-01-12T14:05Z",
+    "lon": -95.799888,
+    "lat": 40.883415001,
+    "imgurl": "https://mesonet.agron.iastate.edu/archive/data/2019/01/12/camera/idot_trucks/A34392/A34392_201901121405.jpg"
+  }
+}
