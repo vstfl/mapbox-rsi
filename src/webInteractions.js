@@ -653,35 +653,63 @@ async function parseTruckURL(truckURL) {
 
 async function mesonetScrapeRWISv2(startTimestamp, endTimestamp) {
   // Return a list of available image URLs from mesonet
-  // TODO: Swap with list in email
   const ids = [
     "IDOT-000-03",
-    "IDOT-014-00",
-    "IDOT-026-01",
+    "IDOT-001-00",
+    "IDOT-008-00",
+    "IDOT-010-01",
+    "IDOT-025-01",
+    "IDOT-025-04",
     "IDOT-030-01",
-    "IDOT-030-02",
+    "IDOT-036-00",
+    "IDOT-036-03",
+    "IDOT-040-00",
     "IDOT-047-00",
     "IDOT-047-01",
     "IDOT-047-02",
-    "IDOT-047-04",
     "IDOT-047-05",
     "IDOT-047-06",
-    "IDOT-048-02",
-    "IDOT-048-03",
-    "IDOT-048-04",
-    "IDOT-048-05",
+    "IDOT-051-01",
+    "IDOT-051-02",
     "IDOT-053-00",
     "IDOT-053-02",
+    "IDOT-056-00",
   ];
 
   let modifiedStart = new Date(endTimestamp);
   modifiedStart.setMinutes(modifiedStart.getMinutes() - 60);
 
   const availableImages = [];
-  // Edgecase: iterate through days as well if timespan crosses two days
-  for (const id of ids) {
-    const stationImages = await findImages(id, modifiedStart, endTimestamp);
-    availableImages.push(...stationImages);
+
+  function isDifferentDay(date1, date2) {
+    return date1.toDateString() !== date2.toDateString();
+  }
+
+  if (isDifferentDay(modifiedStart, new Date(endTimestamp))) {
+    console.log("Query spans two UTC days");
+    let midnight = new Date(modifiedStart);
+    midnight.setHours(24, 0, 0, 0);
+
+    for (const id of ids) {
+      const stationImagesFirstDay = await findImages(
+        id,
+        modifiedStart,
+        midnight,
+      );
+      availableImages.push(...stationImagesFirstDay);
+
+      const stationImagesSecondDay = await findImages(
+        id,
+        midnight,
+        endTimestamp,
+      );
+      availableImages.push(...stationImagesSecondDay);
+    }
+  } else {
+    for (const id of ids) {
+      const stationImages = await findImages(id, modifiedStart, endTimestamp);
+      availableImages.push(...stationImages);
+    }
   }
 
   // console.log("Actual Available Images: " + availableImages.length);
