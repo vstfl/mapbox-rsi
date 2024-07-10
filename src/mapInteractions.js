@@ -1,8 +1,9 @@
 import mapboxgl from "mapbox-gl";
 import { DateTime } from "luxon";
-import { scrollToBottom } from "./webInteractions";
+import { scrollToBottom, studyAreaState } from "./webInteractions";
 import { addData, removeData, newChart } from "./charts.js";
 import RainLayer from "mapbox-gl-rain-layer";
+import { filterStudyArea } from "./interpolation.js";
 
 /**
  * Handle's the majority of relevant map interactions for the user.
@@ -105,7 +106,14 @@ function extractCoordinatesFromGeoJSON(geoJSON) {
 }
 
 // Handle update of map data
-export function updateMapData(newGeoJSON) {
+export async function updateMapData(newGeoJSON) {
+
+  // Need to add filter here to only visualize data that lies on the study area
+
+  if (studyAreaState) {
+    newGeoJSON = await filterStudyArea(newGeoJSON)
+  }
+
   if (map.getLayer("latestLayer")) {
     map.removeLayer("latestLayer");
   }

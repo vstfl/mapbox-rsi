@@ -11,10 +11,24 @@ import {
 import {
   interpolateGeoJSON,
   interpolateGeoJSONLanes,
+  enableLoadingScreen,
+  fadeOutLoadingScreen,
 } from "./interpolation.js";
 import { map } from "./mapInteractions.js";
 import * as geojson from "geojson";
 import { DateTime } from "luxon";
+
+// Handle study area toggle
+const studyAreaToggle = document.querySelector("#studyarea-toggle");
+export let studyAreaState = true;
+studyAreaToggle.addEventListener("change", (e) => {
+  if (e.target.checked) {
+    studyAreaState = true;
+  } else {
+    studyAreaState = false;
+  }
+});
+
 
 // Handle realtime toggle
 const realtimeToggle = document.querySelector("#realtime-toggle");
@@ -141,6 +155,7 @@ async function startQuery(date, window) {
 }
 
 async function sendPredictionsAVL(imagesForPredAVL, date, window) {
+  enableLoadingScreen()
   try {
     console.log("POSTing to AVL Backend");
 
@@ -167,6 +182,7 @@ async function sendPredictionsAVL(imagesForPredAVL, date, window) {
   // console.log(imageQueryRWIS);
   // console.log(startTimestamp);
   updateAll(imageQueryAVL, imageQueryRWIS);
+  fadeOutLoadingScreen()
 }
 
 async function sendPredictionsRWIS(imagesForPredRWIS, date, window) {

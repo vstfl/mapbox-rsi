@@ -20,7 +20,7 @@ async function loadSubdividedRoads(path) {
 }
 
 // Function to enable loading screen and elements with class "loadup"
-function enableLoadingScreen() {
+export function enableLoadingScreen() {
   const loadingScreen = document.getElementById("loadingScreen");
   loadingScreen.style.display = "flex";
   loadingScreen.classList.add("fadeInAnimation");
@@ -35,7 +35,7 @@ function enableLoadingScreen() {
 }
 
 // Function to fade out loading screen and elements with class "loadup"
-function fadeOutLoadingScreen() {
+export function fadeOutLoadingScreen() {
   const loadingScreen = document.getElementById("loadingScreen");
   loadingScreen.classList.remove("fadeInAnimation");
   loadingScreen.classList.add("fadeOutAnimation");
@@ -79,6 +79,56 @@ export async function interpolateGeoJSON(currentGeoJSON) {
   fadeOutLoadingScreen();
   //   console.log(studyRoads);
   return studyRoads;
+}
+
+export async function filterStudyArea(newGeoJSON) {
+  console.log("Filtering data to study areas...")
+  console.log(newGeoJSON)
+  if (!newGeoJSON) {
+    return;
+  }
+  
+  let studyRoads = await loadSubdividedRoads(
+    "./assets/I35I80_Lanes_100ft.geojson",
+  );
+
+  const filteredGeoJSON = await nearRoadSegments(newGeoJSON, studyRoads, 0.2)
+  
+  console.log("Data filtering complete.")
+
+  enableLoadingScreen();
+  fadeOutLoadingScreen();
+  console.log(filteredGeoJSON)
+  return filteredGeoJSON;
+}
+
+async function nearRoadSegments(newGeoJSON, studyRoads, searchRadius) {
+  const roadPoints = 138137;
+  const index = new KDBush(roadPoints);
+  const geoidMap = new Map();
+
+  studyRoads.features.map((line) => {
+    line.geometry.coordinates.map((point) => {
+      const lineID = index.add(point[0], point[1]);
+      geoidMap.set(lineID, line);
+    });
+  });
+
+  index.finish();
+
+  const filteredFeatures = newGeoJSON.features.filter((feature) => {
+    const [lng, lat] = feature.geometry.coordinates;
+    const nearbyPoints = geokdbush.around(index, lng, lat, 1, searchRadius);
+
+    return nearbyPoints.length > 0;
+  });
+
+  const filteredGeoJSON = {
+    type: "FeatureCollection",
+    features: filteredFeatures,
+
+  };
+  return filteredGeoJSON
 }
 
 // Perform interpolation on GeoJSON with Lane subdivision
