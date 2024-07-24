@@ -11,6 +11,7 @@ import {
 import {
   interpolateGeoJSON,
   interpolateGeoJSONLanes,
+  interpolateGeoJSONLanesNIK,
 } from "./interpolation.js";
 import { map } from "./mapInteractions.js";
 import * as geojson from "geojson";
@@ -100,7 +101,6 @@ async function startQuery(date, window) {
   );
 
   // Scrape online database if AVL/RWIS images exist during time window
-  // const actualImagesAVL = await mesonetScrapeAVL(startTimestamp, endTimestamp);
   const actualImagesAVL = await mesonetGETAVL(date, window);
 
   const actualImagesRWIS = await mesonetScrapeRWISv2(
@@ -158,14 +158,10 @@ async function sendPredictionsAVL(imagesForPredAVL, date, window) {
   }
 
   const [startTimestamp, endTimestamp] = calculateDataRange(date, window);
-  // console.log("start: " + startTimestamp);
-  // console.log("end: " + endTimestamp);
   const [imageQueryAVL, imageQueryRWIS] = await queryImagesByDateRange(
     startTimestamp,
     endTimestamp,
   );
-  // console.log(imageQueryRWIS);
-  // console.log(startTimestamp);
   updateAll(imageQueryAVL, imageQueryRWIS);
 }
 
@@ -183,15 +179,12 @@ async function sendPredictionsRWIS(imagesForPredRWIS, date, window) {
   }
 
   const [startTimestamp, endTimestamp] = calculateDataRange(date, window);
-  // console.log("start: " + startTimestamp);
-  // console.log("end: " + endTimestamp);
-  // TODO: Modify imageQueryRWIS to only grab images up to 15 minutes before the endTimestamp
+
   const [imageQueryAVL, imageQueryRWIS] = await queryImagesByDateRange(
     startTimestamp,
     endTimestamp,
   );
-  // console.log(imageQueryRWIS);
-  // console.log(startTimestamp);
+
   updateAll(imageQueryAVL, imageQueryRWIS);
 }
 
@@ -252,7 +245,14 @@ async function updateAll(imageQueryAVL, imageQueryRWIS) {
   updateMapData(newGeoJSON);
 
   if (interpolationState) {
+    // Change inner variable to currentGeoJSON once NIK is fully automated, for now, use manual generations
     currentInterpolatedGeoJSON = await interpolateGeoJSONLanes(currentGeoJSON);
+    updateInterpolation(currentInterpolatedGeoJSON);
+  }
+
+  if (interpolationStateNIK) {
+    currentInterpolatedGeoJSON =
+      await interpolateGeoJSONLanesNIK(currentGeoJSON);
     updateInterpolation(currentInterpolatedGeoJSON);
   }
 }
@@ -319,13 +319,37 @@ document.addEventListener("DOMContentLoaded", async (event) => {
   await Promise.all(promises);
 });
 
-// Handle Geostatistical Interpolation (RSI) Trigger
+function updateInterfaceNIK() {
+  const tempUI = document.querySelectorAll();
+}
+
+// Handle NIK Interpolation Trigger
+let interpolationStateNIK = false;
+document
+  .getElementById("nik-interpolation")
+  .addEventListener("click", async (event) => {
+    event.preventDefault();
+    interpolationState = false;
+    console.log("NIK Interpolation Enabled");
+
+    updateInterfaceNIK();
+
+    currentInterpolatedGeoJSON =
+      await interpolateGeoJSONLanesNIK(currentGeoJSON);
+    updateInterpolation(currentInterpolatedGeoJSON);
+
+    interpolationStateNIK = true;
+  });
+
+// Handle NN Interpolation Trigger
 let interpolationState = false;
 let currentInterpolatedGeoJSON;
 document
   .getElementById("interpolation")
   .addEventListener("click", async (event) => {
     event.preventDefault(); // Prevent default anchor behavior
+    interpolationStateNIK = false;
+    console.log("NN Interpolation Enabled");
 
     currentInterpolatedGeoJSON = await interpolateGeoJSONLanes(currentGeoJSON);
     updateInterpolation(currentInterpolatedGeoJSON);

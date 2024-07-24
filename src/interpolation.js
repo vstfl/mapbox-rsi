@@ -81,9 +81,38 @@ export async function interpolateGeoJSON(currentGeoJSON) {
   return studyRoads;
 }
 
+// TODO: When automation of Interpolation is wanted, change this function accordingly:
+// Specifically: change findNearestLineSegmentsFaster to a new function which applies NIK in real-time
+export async function interpolateGeoJSONLanesNIK(currentGeoJSON) {
+  console.log("Interpolating current data with NIK method...");
+
+  if (!currentGeoJSON) {
+    return;
+  }
+
+  enableLoadingScreen();
+
+  let studyRoads = await loadSubdividedRoads(
+    "./assets/I35I80_Lanes_100ft.geojson",
+  );
+  let studyPoints = currentGeoJSON;
+
+  studyPoints = findNearestLineSegmentsFaster(currentGeoJSON, studyRoads, 0.05); // 50m Search radius for closest lane
+
+  const classifiedRoads = await assignNearestClassification(
+    studyRoads,
+    studyPoints,
+    30, // 30km Allowable search radius
+  );
+
+  console.log("Interpolation complete.");
+  fadeOutLoadingScreen();
+  return classifiedRoads;
+}
+
 // Perform interpolation on GeoJSON with Lane subdivision
 export async function interpolateGeoJSONLanes(currentGeoJSON) {
-  console.log("Interpolating specific Lanes method...");
+  console.log("Interpolating current data with NN method...");
 
   if (!currentGeoJSON) {
     return;
