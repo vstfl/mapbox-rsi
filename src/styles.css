@@ -374,13 +374,22 @@ div.nav {
   width: calc(100% - 2.5vw - 10px);
 }
 
-.realtime-div {
+.realtime-div{
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   flex-wrap: wrap;
   margin-top: 1.5em;
+}
+
+.studyarea-div{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  flex-wrap: wrap;
+  margin-top: 0.5em;
   margin-bottom: 0.5em;
 }
 
