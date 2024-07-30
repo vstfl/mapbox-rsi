@@ -374,7 +374,7 @@ div.nav {
   width: calc(100% - 2.5vw - 10px);
 }
 
-.realtime-div{
+.realtime-div {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -383,7 +383,7 @@ div.nav {
   margin-top: 1.5em;
 }
 
-.studyarea-div{
+.studyarea-div {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -410,6 +410,20 @@ form .datetime-div {
   justify-content: space-between;
   width: 100%;
   flex-wrap: wrap;
+}
+
+.nik-add {
+  display: none;
+  width: 100%;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  justify-content: space-between;
+}
+
+#nik-options {
+  width: 60%;
+  border-radius: 7px;
+  font-size: 1em;
 }
 
 .range-div {

@@ -107,11 +107,10 @@ function extractCoordinatesFromGeoJSON(geoJSON) {
 
 // Handle update of map data
 export async function updateMapData(newGeoJSON) {
-
   // Need to add filter here to only visualize data that lies on the study area
 
   if (studyAreaState) {
-    newGeoJSON = await filterStudyArea(newGeoJSON)
+    newGeoJSON = await filterStudyArea(newGeoJSON);
   }
 
   if (map.getLayer("latestLayer")) {
@@ -230,12 +229,12 @@ function addPointLayer(geojsonSource) {
           "case",
           ["boolean", ["feature-state", "hover"], false],
           16, // Larger when true
-          12,
+          14,
         ],
         [
           "case",
           ["boolean", ["feature-state", "hover"], false],
-          10, // Larger when true
+          12, // Larger when true
           6,
         ],
       ],

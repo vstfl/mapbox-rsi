@@ -18,11 +18,11 @@
       <div class="loader"></div>
     </div>
 
-    <div class="sign-in-container loadup" style="opacity: 0">
+    <!-- <div class="sign-in-container loadup" style="opacity: 0">
       <div class="grey-out"></div>
       <div id="firebaseui-auth-container"></div>
       <div id="loader">Loading...</div>
-    </div>
+    </div> -->
 
     <div class="ui-container loadup" style="opacity: 0">
       <div id="header">
@@ -42,9 +42,11 @@
             <p class="nav nav-text">Tools</p>
             <div class="dropdown-content">
               <a href="#" class="nav-text" id="interpolation"
-                >Geostatistical Interpolation (RSI)</a
+                >Nearest Neighbour Interpolation</a
               >
-              <a href="#" class="nav-text">Spatial Mapping (Demo)</a>
+              <a href="#" class="nav-text" id="nik-interpolation"
+                >Nested Indicator Kriging Interpolation</a
+              >
             </div>
           </div>
           <a
@@ -74,7 +76,7 @@
 
         <div class="console resizable" id="inner-console">
           <form class="form-resize" id="query-form">
-            <div class="realtime-div">
+            <div class="realtime-div nik-remove">
               <label for="realtime-toggle" style="margin-right: 12px"
                 >Enable Real-Time:</label
               >
@@ -82,7 +84,6 @@
                 <input type="checkbox" id="realtime-toggle" />
                 <span class="slider round"></span>
               </label>
-              
             </div>
             <div class="studyarea-div">
               <label for="studyarea-toggle" style="margin-right: 12px"
@@ -92,9 +93,8 @@
                 <input type="checkbox" id="studyarea-toggle" checked />
                 <span class="slider round"></span>
               </label>
-              
             </div>
-            <div class="datetime-div archived-query">
+            <div class="datetime-div archived-query nik-remove">
               <label for="query-date" style="margin-right: 12px"
                 >Pick a date:</label
               >
@@ -108,7 +108,16 @@
                 max="2019-01-12T12:30" -->
             </div>
 
-            <div class="range-div">
+            <div class="nik-add">
+              <label for="nik-options" style="margin-right: 12px"
+                >NIK Dataset:</label
+              >
+              <select id="nik-options">
+                <option value="" disabled selected>Pick a date</option>
+              </select>
+            </div>
+
+            <div class="range-div nik-remove">
               <label for="time-range" style="margin-right: 12px">
                 Pick a window (±<span id="slider-value">0</span> mins):</label
               >
@@ -132,7 +141,7 @@
               </datalist>
             </div>
 
-            <div class="submit archived-query">
+            <div class="submit archived-query nik-remove">
               <button id="submit-query">Submit Query</button>
             </div>
           </form>

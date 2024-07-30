@@ -261,13 +261,17 @@ async function updateAll(imageQueryAVL, imageQueryRWIS) {
 
   if (interpolationState) {
     // Change inner variable to currentGeoJSON once NIK is fully automated, for now, use manual generations
+    console.log("\n\nINTERPOLATION GEOJSON: ");
+    console.log(currentGeoJSON);
     currentInterpolatedGeoJSON = await interpolateGeoJSONLanes(currentGeoJSON);
     updateInterpolation(currentInterpolatedGeoJSON);
   }
 
   if (interpolationStateNIK) {
+    console.log("\n\nINTERPOLATION GEOJSON: ");
+    console.log(currentNIKGeoJSON);
     currentInterpolatedGeoJSON =
-      await interpolateGeoJSONLanesNIK(currentGeoJSON);
+      await interpolateGeoJSONLanesNIK(currentNIKGeoJSON);
     updateInterpolation(currentInterpolatedGeoJSON);
   }
 }
@@ -302,6 +306,9 @@ document
         btn.style.cursor = "pointer";
         console.log("Button Available");
       }, 160 * window); // Scale button cooldown depending on size of window
+      console.log(
+        "\n\nTEST DATE: " + date + "\nTEST WINDOW: " + window + "\n\n",
+      );
       await startQuery(date, window);
     }
   });
@@ -335,8 +342,91 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 });
 
 function updateInterfaceNIK() {
-  const tempUI = document.querySelectorAll();
+  const removeUI = document.querySelectorAll(".nik-remove");
+  const addUI = document.querySelectorAll(".nik-add");
+  removeUI.forEach((query) => {
+    query.style.display = "none";
+  });
+  addUI.forEach((query) => {
+    query.style.display = "flex";
+  });
 }
+
+// Handle auto-population of NIK data (TODO: Remove this function once NIK is automated)
+document.addEventListener("DOMContentLoaded", function () {
+  const select = document.getElementById("nik-options");
+  const directoryPath = "./assets/generatedNIKInterpolations/";
+
+  function populateDropdown(files) {
+    files.forEach((file) => {
+      const option = document.createElement("option");
+      option.value = file.split(".")[0];
+      option.textContent = file.split(".")[0].replaceAll("_", "-");
+      select.appendChild(option);
+    });
+  }
+
+  fetch(directoryPath)
+    .then((response) => response.text())
+    .then((data) => {
+      const parser = new DOMParser();
+      const htmlDoc = parser.parseFromString(data, "text/html");
+      const fileLinks = htmlDoc.querySelectorAll("a");
+      const files = Array.from(fileLinks)
+        .map((link) => link.href.split("/").pop())
+        .filter((filename) => filename.endsWith(".geojson"));
+      populateDropdown(files);
+    })
+    .catch((error) => console.error("Error:", error));
+});
+
+function NIKData(inputString) {
+  const [year, month, day, hour] = inputString.split("_");
+
+  // Note: We use America/Chicago timezone as the input is in CST
+  const dateTime = DateTime.fromObject(
+    {
+      year: parseInt(year),
+      month: parseInt(month),
+      day: parseInt(day),
+      hour: parseInt(hour),
+      minute: 30,
+      second: 0,
+      millisecond: 0,
+    },
+    { zone: "America/Chicago" },
+  );
+  // Convert to ISO format
+  return dateTime.toISO();
+}
+
+let currentNIKGeoJSON;
+document
+  .getElementById("nik-options")
+  .addEventListener("change", async function () {
+    var selectedValue = this.value;
+    console.log("Selected NIK interpolation: ", selectedValue);
+
+    // Change currentNIKGeoJSON according to selected value
+    try {
+      const response = await fetch(
+        `./assets/generatedNIKInterpolations/${selectedValue}.geojson`,
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      currentNIKGeoJSON = await response.json();
+      console.log("Loaded GeoJSON file:", selectedValue);
+    } catch (error) {
+      console.error("Error loading GeoJSON file:", error);
+    }
+
+    let date = NIKData(selectedValue);
+    let window = 30;
+
+    console.log("\n\nTEST DATE: " + date + "\nTEST WINDOW: " + window + "\n\n");
+    await startQuery(date, window);
+  });
 
 // Handle NIK Interpolation Trigger
 let interpolationStateNIK = false;
@@ -349,9 +439,9 @@ document
 
     updateInterfaceNIK();
 
-    currentInterpolatedGeoJSON =
-      await interpolateGeoJSONLanesNIK(currentGeoJSON);
-    updateInterpolation(currentInterpolatedGeoJSON);
+    // currentInterpolatedGeoJSON =
+    //   await interpolateGeoJSONLanesNIK(currentGeoJSON);
+    // updateInterpolation(currentInterpolatedGeoJSON);
 
     interpolationStateNIK = true;
   });
