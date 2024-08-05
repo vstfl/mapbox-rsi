@@ -5,9 +5,9 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack",
+    "build": "webpack --config webpack.prod.js --mode production",
     "build:stats": "webpack --mode production --profile --json > stats.json",
-    "dev": "webpack --mode development --watch"
+    "dev": "webpack --config webpack.dev.js --mode development --watch"
   },
   "keywords": [],
   "author": "Michael Urbiztondo",
