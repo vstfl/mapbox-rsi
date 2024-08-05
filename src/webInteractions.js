@@ -355,7 +355,7 @@ function updateInterfaceNIK() {
 // Handle auto-population of NIK data (TODO: Remove this function once NIK is automated)
 document.addEventListener("DOMContentLoaded", function () {
   const select = document.getElementById("nik-options");
-  const directoryPath = "/mapbox-rsi/docs/assets/generatedNIKInterpolations/";
+  const directoryPath = "/mapbox-rsi/main/docs/assets/generatedNIKInterpolations/";
   const fileListPath = directoryPath + "file-list.json";
 
   function populateDropdown(files) {
