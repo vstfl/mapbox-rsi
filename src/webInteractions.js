@@ -355,19 +355,19 @@ function updateInterfaceNIK() {
 // Handle auto-population of NIK data (TODO: Remove this function once NIK is automated)
 document.addEventListener("DOMContentLoaded", function () {
   const select = document.getElementById("nik-options");
-  const directoryPath = "/mapbox-rsi/main/docs/assets/generatedNIKInterpolations/";
-  const fileListPath = directoryPath + "file-list.json";
+  const jsonFilePath = "https://raw.githubusercontent.com/vstfl/mapbox-rsi/main/docs/assets/generatedNIKInterpolations/file-list.json";
+  const baseFileUrl = "https://raw.githubusercontent.com/vstfl/mapbox-rsi/main/docs/assets/generatedNIKInterpolations/";
 
   function populateDropdown(files) {
     files.forEach((file) => {
       const option = document.createElement("option");
-      option.value = file.split(".")[0];
+      option.value = baseFileUrl + file;
       option.textContent = file.split(".")[0].replaceAll("_", "-");
       select.appendChild(option);
     });
   }
 
-  fetch(fileListPath)
+  fetch(jsonFilePath)
     .then((response) => response.json())
     .then((files) => {
       populateDropdown(files);
@@ -376,7 +376,10 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function NIKData(inputString) {
-  const [year, month, day, hour] = inputString.split("_");
+  // console.log(inputString)
+  const parts = inputString.split('/').pop().split('_');
+  let [year, month, day, hour] = parts
+  hour = hour.split('.')[0]
 
   // Note: We use America/Chicago timezone as the input is in CST
   const dateTime = DateTime.fromObject(
@@ -405,13 +408,14 @@ document
     // Change currentNIKGeoJSON according to selected value
     try {
       const response = await fetch(
-        `./assets/generatedNIKInterpolations/${selectedValue}.geojson`,
+         selectedValue,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       currentNIKGeoJSON = await response.json();
       console.log("Loaded GeoJSON file:", selectedValue);
+      // console.log(currentNIKGeoJSON)
     } catch (error) {
       console.error("Error loading GeoJSON file:", error);
     }
