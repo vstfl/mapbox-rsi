@@ -356,6 +356,7 @@ function updateInterfaceNIK() {
 document.addEventListener("DOMContentLoaded", function () {
   const select = document.getElementById("nik-options");
   const directoryPath = "/mapbox-rsi/docs/assets/generatedNIKInterpolations/";
+  const fileListPath = directoryPath + "file-list.json";
 
   function populateDropdown(files) {
     files.forEach((file) => {
@@ -366,15 +367,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  fetch(directoryPath)
-    .then((response) => response.text())
-    .then((data) => {
-      const parser = new DOMParser();
-      const htmlDoc = parser.parseFromString(data, "text/html");
-      const fileLinks = htmlDoc.querySelectorAll("a");
-      const files = Array.from(fileLinks)
-        .map((link) => link.href.split("/").pop())
-        .filter((filename) => filename.endsWith(".geojson"));
+  fetch(fileListPath)
+    .then((response) => response.json())
+    .then((files) => {
       populateDropdown(files);
     })
     .catch((error) => console.error("Error:", error));
